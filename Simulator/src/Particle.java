@@ -4,13 +4,19 @@ public class Particle {
     double vx;
     double vy;
     double radius;
+    double mass;
 
     public Particle(double x, double y, double vx, double vy, double radius) {
+        this(x, y, vx, vy, radius, 1.0);
+    }
+
+    public Particle(double x, double y, double vx, double vy, double radius, double mass) {
         this.x = x;
         this.y = y;
         this.vx = vx;
         this.vy = vy;
         this.radius = radius;
+        this.mass = mass;
     }
 
     public Double timeToHit(Particle other) {
@@ -30,6 +36,60 @@ public class Particle {
         if (d < 0) return null; // no hay solución real
 
         return -(dvdr + Math.sqrt(d)) / dvdv;
+    }
+
+    public Double timeToHitBoundary()   {
+        return null;
+    }
+
+    public void move(double dt) {
+        this.x += this.vx * dt;
+        this.y += this.vy * dt;
+    }
+
+    // Versión optimizada para masa = 1
+    public void bounceOffUnitMass(Particle other) {
+        double dx = other.x - this.x;
+        double dy = other.y - this.y;
+        double dvx = other.vx - this.vx;
+        double dvy = other.vy - this.vy;
+
+        double dvdr = dx * dvx + dy * dvy; // producto punto Δr · Δv
+        double dist = this.radius + other.radius;
+
+        double J = 2 * dvdr / (dist * dist);
+        double Jx = J * dx;
+        double Jy = J * dy;
+
+        this.vx += Jx;
+        this.vy += Jy;
+        other.vx -= Jx;
+        other.vy -= Jy;
+    }
+
+    public void bounceOff(Particle other) {
+        double dx = other.x - this.x;
+        double dy = other.y - this.y;
+        double dvx = other.vx - this.vx;
+        double dvy = other.vy - this.vy;
+
+        double dvdr = dx * dvx + dy * dvy; // producto punto Δr · Δv
+        double dist = this.radius + other.radius;
+
+        // magnitud del impulso
+        double J = 2 * this.getMass() * other.getMass() * dvdr / ((this.getMass() + other.getMass()) * dist);
+        double Jx = J * dx / dist;
+        double Jy = J * dy / dist;
+
+        // actualizar velocidades
+        this.vx += Jx / this.getMass();
+        this.vy += Jy / this.getMass();
+        other.vx -= Jx / other.getMass();
+        other.vy -= Jy / other.getMass();
+    }
+
+    public Double bounceOffBoundary() {
+        return null;
     }
 
     public void setX(double x) {
@@ -52,6 +112,8 @@ public class Particle {
         this.radius = radius;
     }
 
+    public void setMass(double mass) { this.mass = mass; }
+
     public double getX() {
         return x;
     }
@@ -72,4 +134,7 @@ public class Particle {
         return radius;
     }
 
+    public double getMass() {
+        return mass;
+    }
 }
