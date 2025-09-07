@@ -13,7 +13,7 @@ public class Generator {
     private static final double SPEED = 0.01;
     private static final double RADIUS = 0.0015;
     private static final int ITERATIONS = 5;
-    private static final String OUTPUT_PATH = "./src/inputs";
+    private static final String OUTPUT_PATH = "./inputs";
 
 
     public boolean checkOverlap(Particle p1, Particle p2) {
