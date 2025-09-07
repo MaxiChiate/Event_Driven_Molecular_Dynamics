@@ -12,6 +12,7 @@ public class Simulator {
     private final ArrayList<Particle> particleList;
     private final CollisionSystem collisionSystem;
     private Double t = 0.0;
+    private int step = 0;
     private final int maxT;
 
     public Simulator(double L, ArrayList<Particle> particleList, Path outputPath, int maxTimesteps) throws IOException {
@@ -24,10 +25,10 @@ public class Simulator {
 
     public void executeSimulation(Path outputPath) throws IOException {
         try (OutputWriter out = OutputWriter.open(outputPath)) {
-            while (t < maxT) {
-
+            while (step < maxT) {
                 out.writeStep(particleList, t);
                 t+= collisionSystem.nextStep();
+                step++;
             }
         }
     }
