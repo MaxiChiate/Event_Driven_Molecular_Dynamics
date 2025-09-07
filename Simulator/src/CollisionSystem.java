@@ -30,7 +30,7 @@ public class CollisionSystem {
         return Map.copyOf(collisions);
     }
 
-    public Map<ParticlePair, Double> nextStep() {
+    public Double nextStep() {
         // Siguiente colisión
         Map.Entry<ParticlePair, Double> next = nextCollision();
 
@@ -59,7 +59,7 @@ public class CollisionSystem {
         recomputeCollisionsFor(a);
         if (b != null) recomputeCollisionsFor(b);
 
-        return getCollisions();
+        return dt;
     }
 
     private Map.Entry<ParticlePair, Double> nextCollision() {
