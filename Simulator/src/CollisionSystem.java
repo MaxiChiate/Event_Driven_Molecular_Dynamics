@@ -34,7 +34,7 @@ public class CollisionSystem {
         // Siguiente colisión
         Map.Entry<ParticlePair, Double> next = nextCollision();
 
-        if (next == null) return null;
+        if (next == null) return Double.POSITIVE_INFINITY;
 
         double dt = next.getValue();
         ParticlePair pair = next.getKey();
