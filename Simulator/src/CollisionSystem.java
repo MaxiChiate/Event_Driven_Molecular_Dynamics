@@ -34,7 +34,7 @@ public class CollisionSystem {
         // Siguiente colisión
         Map.Entry<ParticlePair, Double> next = nextCollision();
 
-        if (next == null) return Double.POSITIVE_INFINITY;
+        if (next == null) return Double.MAX_VALUE;
 
         double dt = next.getValue();
         ParticlePair pair = next.getKey();
@@ -86,4 +86,32 @@ public class CollisionSystem {
             collisions.put(pair, t);
         }
     }
+
+    public void printState() {
+        System.out.println("=== Estado de Partículas ===");
+        for (int i = 0; i < particles.size(); i++) {
+            Particle p = particles.get(i);
+            System.out.printf("Partícula %d: Pos(%.4f, %.4f), Vel(%.4f, %.4f), Radio %.4f\n",
+                    i, p.getX(), p.getY(), p.getVx(), p.getVy(), p.getRadius());
+        }
+
+        System.out.println("\n=== Colisiones ===");
+        for (Map.Entry<ParticlePair, Double> entry : collisions.entrySet()) {
+            ParticlePair pair = entry.getKey();
+            Double t = entry.getValue();
+            if(t != null)   {
+
+                if (pair.getP2() != null) {
+                    System.out.printf("Colisión entre Partícula %d y Partícula %d en t=%.4f\n",
+                            particles.indexOf(pair.getP1()), particles.indexOf(pair.getP2()), t);
+                } else {
+                    System.out.printf("Colisión de Partícula %d con el borde en t=%.4f\n",
+                            particles.indexOf(pair.getP1()), t);
+                }
+            }
+        }
+        System.out.println("============================\n");
+    }
+
 }
+
