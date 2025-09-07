@@ -9,14 +9,12 @@ import java.util.Locale;
 public class Simulator {
 
     private final double L;
-    private final HashMap<Pair<Particle, Particle>, Double> particles;
     private final ArrayList<Particle> particleList;
     private double t = 0;
     private final int maxT;
 
     public Simulator(double L, ArrayList<Particle> particleList, Path outputPath, int maxTimesteps) throws IOException {
         this.L = L;
-        this.particles = new HashMap<>();
         this.particleList = particleList;
         this.maxT = maxTimesteps;
 //        buildParticlesMap(particles, particleList);
@@ -24,16 +22,13 @@ public class Simulator {
     }
 
     public void executeSimulation(Path outputPath) throws IOException {
-        while (t < maxT) {
-            try (OutputWriter out = OutputWriter.open(outputPath)) {
-                while (t < maxT) {
+        try (OutputWriter out = OutputWriter.open(outputPath)) {
+            while (t < maxT) {
 
-                    out.writeStep(particleList, t);
-                    t++;
-                }
+                out.writeStep(particleList, t);
+                t++;
             }
         }
-
     }
 
 
