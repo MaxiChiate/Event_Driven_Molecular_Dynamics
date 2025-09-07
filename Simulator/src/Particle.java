@@ -26,20 +26,20 @@ public class Particle {
         double dvy = other.getVy() - getVy();
 
         double dvdr = dx * dvx + dy * dvy;   // producto punto Δr · Δv
-        if (dvdr >= 0) return Double.POSITIVE_INFINITY; // se alejan
+        if (dvdr >= 0) return null; // se alejan
 
         double dvdv = dvx * dvx + dvy * dvy;
         double drdr = dx * dx + dy * dy;
         double sigma = getRadius() + other.getRadius();
 
         double d = dvdr * dvdr - dvdv * (drdr - sigma * sigma);
-        if (d < 0) return Double.POSITIVE_INFINITY; // no hay solución real
+        if (d < 0) return null; // no hay solución real
 
         return -(dvdr + Math.sqrt(d)) / dvdv;
     }
 
     public Double timeToHitBoundary()   {
-        return Double.POSITIVE_INFINITY;
+        return null;
     }
 
     public void move(double dt) {
@@ -55,6 +55,9 @@ public class Particle {
         double dvy = other.vy - this.vy;
 
         double dvdr = dx * dvx + dy * dvy; // producto punto Δr · Δv
+
+        if(dvdr < 0) return;
+
         double dist = this.radius + other.radius;
 
         double J = 2 * dvdr / (dist * dist);
@@ -75,6 +78,8 @@ public class Particle {
 
         double dvdr = dx * dvx + dy * dvy; // producto punto Δr · Δv
         double dist = this.radius + other.radius;
+
+        if(dvdr < 0) return;
 
         // magnitud del impulso
         double J = 2 * this.getMass() * other.getMass() * dvdr / ((this.getMass() + other.getMass()) * dist);
