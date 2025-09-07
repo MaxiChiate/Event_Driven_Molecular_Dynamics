@@ -8,12 +8,12 @@ import java.util.Locale;
 //x, y, v_x, v_y, radius
 public class Generator {
 
-    final int particles_amount = 300;
-    final double board_size = 0.09;
-    final double speed = 0.01;
-    final double radius = 0.0015;
-    final static int iterations = 5;
-    final String outputPath = "./src/inputs";
+    private static final int PARTICLES_AMOUNT = 300;
+    private static final double BOARD_SIZE = 0.09;
+    private static final double SPEED = 0.01;
+    private static final double RADIUS = 0.0015;
+    private static final int ITERATIONS = 5;
+    private static final String OUTPUT_PATH = "./src/inputs";
 
 
     public boolean checkOverlap(Particle p1, Particle p2) {
@@ -32,26 +32,26 @@ public class Generator {
 
 
     public void generateInputs(int iteration) throws IOException {
-        String dirPath = outputPath + "/" + "N" + particles_amount;
+        String dirPath = OUTPUT_PATH + "/" + "N" + PARTICLES_AMOUNT;
         Files.createDirectories(Path.of(dirPath));
-        String fileName = String.format("input_N%d_%s.txt", particles_amount, String.format("%04d", iteration));
+        String fileName = String.format("input_N%d_%s.txt", PARTICLES_AMOUNT, String.format("%04d", iteration));
         File file = new File(dirPath + "/" + fileName);
         if (file.exists()) {
             file.delete();
         }
         file.createNewFile();
         int i=0;
-        Particle[] particles = new Particle[particles_amount];
-        while (i < particles_amount) {
-            double x = Math.random() * (board_size - 2 * radius) + radius;
-            double y = Math.random() * (board_size - 2 * radius) + radius;
+        Particle[] particles = new Particle[PARTICLES_AMOUNT];
+        while (i < PARTICLES_AMOUNT) {
+            double x = Math.random() * (BOARD_SIZE - 2 * RADIUS) + RADIUS;
+            double y = Math.random() * (BOARD_SIZE - 2 * RADIUS) + RADIUS;
             double angle = Math.random() * 2 * Math.PI;
-            double vx = speed * Math.cos(angle);
-            double vy = speed * Math.sin(angle);
-            Particle new_particle = new Particle(x, y, vx, vy, radius);
+            double vx = SPEED * Math.cos(angle);
+            double vy = SPEED * Math.sin(angle);
+            Particle new_particle = new Particle(x, y, vx, vy, RADIUS);
             if (!checkCollision(particles, new_particle, i)) {
                 particles[i] = new_particle;
-                String particle = String.format(Locale.US, "%.17g %.17g %.17g %.17g %.5f%n", x, y, vx, vy, radius);
+                String particle = String.format(Locale.US, "%.17g %.17g %.17g %.17g %.5f%n", x, y, vx, vy, RADIUS);
                 java.nio.file.Files.write(file.toPath(), particle.getBytes(), java.nio.file.StandardOpenOption.APPEND);
                 i++;
             }
@@ -63,7 +63,7 @@ public class Generator {
 
     public static void main(String[] args) throws IOException {
         Generator gen = new Generator();
-        for (int i = 0; i < iterations; i++) {
+        for (int i = 0; i < ITERATIONS; i++) {
             gen.generateInputs(i);
         }
     }
