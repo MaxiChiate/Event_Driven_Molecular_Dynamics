@@ -13,6 +13,25 @@ public class Particle {
         this.radius = radius;
     }
 
+    public Double timeToHit(Particle other) {
+        double dx = other.getX() - getX();
+        double dy = other.getY() - getY();
+        double dvx = other.getVx() - getVx();
+        double dvy = other.getVy() - getVy();
+
+        double dvdr = dx * dvx + dy * dvy;   // producto punto Δr · Δv
+        if (dvdr >= 0) return null; // se alejan
+
+        double dvdv = dvx * dvx + dvy * dvy;
+        double drdr = dx * dx + dy * dy;
+        double sigma = getRadius() + other.getRadius();
+
+        double d = dvdr * dvdr - dvdv * (drdr - sigma * sigma);
+        if (d < 0) return null; // no hay solución real
+
+        return -(dvdr + Math.sqrt(d)) / dvdv;
+    }
+
     public void setX(double x) {
         this.x = x;
     }
@@ -52,4 +71,5 @@ public class Particle {
     public double getRadius() {
         return radius;
     }
+
 }
