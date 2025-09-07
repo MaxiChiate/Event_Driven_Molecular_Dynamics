@@ -32,4 +32,5 @@ bin/
 
 
 ### IO FILES ###
-src/inputs/
+inputs/
+outputs/
