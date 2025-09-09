@@ -2,44 +2,30 @@ import java.util.*;
 
 public class CollisionSystem {
     private final List<Particle> particles;
-    private final Map<ParticlePair, Double> collisions = new HashMap<>();
+
+//    private final Map<ParticlePair, Double> collisions = new HashMap<>();
+    private final Map<Particle, Collision> collisions;
 
     public CollisionSystem(List<Particle> particles) {
         this.particles = particles;
+        collisions = new HashMap<>();
         computeAllCollisions();
     }
 
-    private void computeAllCollisions() {
-
-        int n = particles.size();
-        for (int i = 0; i < n; i++) {
-            Particle p1 = particles.get(i);
-
-            ParticlePair selfPair = new ParticlePair(p1);
-            collisions.put(selfPair, p1.timeToHitBoundary());
-
-            for (int j = i + 1; j < n; j++) {
-                Particle p2 = particles.get(j);
-                Double t = p1.timeToHit(p2);
-                collisions.put(new ParticlePair(p1, p2), t);
-            }
-        }
-    }
-
-    public Map<ParticlePair, Double> getCollisions() {
+    public Map<Particle, Collision> getAllCollisions() {
         return Map.copyOf(collisions);
     }
 
     public Double nextStep() {
         // Siguiente colisión
-        Map.Entry<ParticlePair, Double> next = nextCollision();
+        Map.Entry<Particle, Collision> next = nextCollision();
 
         if (next == null) return Double.MAX_VALUE;
 
-        double dt = next.getValue();
-        ParticlePair pair = next.getKey();
-        Particle a = pair.getP1();
-        Particle b = pair.getP2();
+        Collision collision = next.getValue();
+        double dt = collision.getTime();
+        Particle a = collision.getP1();
+        Particle b = collision.getP2();
 
         // Recalculo las posiciones de las partículas
         for(Particle particle : particles) {
@@ -50,7 +36,7 @@ public class CollisionSystem {
         if(b != null)
             a.bounceOffUnitMass(b);
         else
-             a.bounceOffBoundary();
+            a.bounceOffBoundary();
 
         // Restar dt a todas las demás colisiones
         advanceTime(dt);
@@ -62,56 +48,60 @@ public class CollisionSystem {
         return dt;
     }
 
-    private Map.Entry<ParticlePair, Double> nextCollision() {
+    private void computeAllCollisions() {
+
+        for (Particle particle : particles) {
+
+            collisions.put(particle, computeNextCollisionFor(particle));
+        }
+    }
+
+    private Collision computeNextCollisionFor(Particle particle) {
+
+        Collision nextCollision = new Collision(particle, null, particle.timeToHitBoundary());;
+        Double timeAux;
+
+        for (Particle particleAux : particles) {
+
+            if(particleAux.equals(particle)) continue;
+
+            timeAux = particle.timeToHit(particleAux);
+
+            if(timeAux.compareTo(nextCollision.getTime()) <= 0) {
+                nextCollision = new Collision(particle, particleAux, timeAux);
+            }
+        }
+
+        return nextCollision;
+    }
+
+    private Map.Entry<Particle, Collision> nextCollision() {
         return collisions.entrySet()
                 .stream()
                 .filter(e -> e.getValue() != null)
-                .min(Map.Entry.comparingByValue())
+                .min(Comparator.comparingDouble(e -> e.getValue().getTime()))
                 .orElse(null);
     }
 
+
     private void advanceTime(double dt) {
-        for (Map.Entry<ParticlePair, Double> entry : collisions.entrySet()) {
-            if (entry.getValue() != null) {
-                collisions.put(entry.getKey(), entry.getValue() - dt);
+        for (Map.Entry<Particle, Collision> entry : collisions.entrySet()) {
+            Collision collision = entry.getValue();
+            if (collision != null) {
+                collision.advanceTime(dt);
+                collisions.put(entry.getKey(), collision);
             }
         }
     }
 
     private void recomputeCollisionsFor(Particle p) {
-        for (Particle other : particles) {
-            if (other == p) continue;
-            ParticlePair pair = new ParticlePair(p, other);
-            Double t = p.timeToHit(other);
-            collisions.put(pair, t);
+        Collision collision = computeNextCollisionFor(p);
+        collisions.put(collision.getP1(), collision);
+
+        Collision otherCollision = collisions.get(collision.getP2());
+        if( otherCollision != null && collision.compareTo(otherCollision) <= 0) {
+            collisions.put(collision.getP2(), collision);
         }
     }
-
-    public void printState() {
-        System.out.println("=== Estado de Partículas ===");
-        for (int i = 0; i < particles.size(); i++) {
-            Particle p = particles.get(i);
-            System.out.printf("Partícula %d: Pos(%.4f, %.4f), Vel(%.4f, %.4f), Radio %.4f\n",
-                    i, p.getX(), p.getY(), p.getVx(), p.getVy(), p.getRadius());
-        }
-
-        System.out.println("\n=== Colisiones ===");
-        for (Map.Entry<ParticlePair, Double> entry : collisions.entrySet()) {
-            ParticlePair pair = entry.getKey();
-            Double t = entry.getValue();
-            if(t != null)   {
-
-                if (pair.getP2() != null) {
-                    System.out.printf("Colisión entre Partícula %d y Partícula %d en t=%.4f\n",
-                            particles.indexOf(pair.getP1()), particles.indexOf(pair.getP2()), t);
-                } else {
-                    System.out.printf("Colisión de Partícula %d con el borde en t=%.4f\n",
-                            particles.indexOf(pair.getP1()), t);
-                }
-            }
-        }
-        System.out.println("============================\n");
-    }
-
 }
 

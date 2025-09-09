@@ -1,5 +1,6 @@
 import java.util.Objects;
 
+@Deprecated
 public class ParticlePair {
         private final Particle p1;
         private final Particle p2; // puede ser null si es solo una partícula

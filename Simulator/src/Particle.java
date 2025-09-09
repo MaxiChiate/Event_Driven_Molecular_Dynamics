@@ -1,22 +1,22 @@
 public class Particle {
-    double x;
-    double y;
-    double vx;
-    double vy;
-    double radius;
-    double mass;
 
-    public Particle(double x, double y, double vx, double vy, double radius) {
-        this(x, y, vx, vy, radius, 1.0);
-    }
+    private static long nextId = 0;
+    private final long ID;
+
+    double x, y, vx, vy, radius, mass;
 
     public Particle(double x, double y, double vx, double vy, double radius, double mass) {
+        this.ID = nextId++;
         this.x = x;
         this.y = y;
         this.vx = vx;
         this.vy = vy;
         this.radius = radius;
         this.mass = mass;
+    }
+
+    public Particle(double x, double y, double vx, double vy, double radius) {
+        this(x, y, vx, vy, radius, 1.0);
     }
 
     public Double timeToHit(Particle other) {
@@ -141,5 +141,22 @@ public class Particle {
 
     public double getMass() {
         return mass;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Particle other)) return false;
+        return ID == other.ID;
+    }
+
+    @Override
+    public int hashCode() {
+        return Long.hashCode(ID);
+    }
+
+    @Override
+    public String toString() {
+        return "Particle: " + ID + ", x,y = (" + x + ", " + y + "), v = (" + vx + ", " + vy + "), radius = " + radius + ", mass = " + mass;
     }
 }
