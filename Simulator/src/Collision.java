@@ -44,4 +44,13 @@ public class Collision implements Comparable<Collision> {
     public Double getTime() {
         return time;
     }
+
+    @Override
+    public String toString() {
+        return "Collision{" +
+                "p1=" + p1.getId() +
+                ", p2=" + p2.getId() +
+                ", time=" + time +
+                '}';
+    }
 }
