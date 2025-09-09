@@ -60,7 +60,7 @@ public class Particle {
 
         double dvdr = dx * dvx + dy * dvy; // producto punto Δr · Δv
 
-        if(dvdr < 0) return;
+//        if(dvdr < 0) return;
 
         double dist = this.radius + other.radius;
 
@@ -83,7 +83,7 @@ public class Particle {
         double dvdr = dx * dvx + dy * dvy; // producto punto Δr · Δv
         double dist = this.radius + other.radius;
 
-        if(dvdr < 0) return;
+//        if(dvdr < 0) return;
 
         // magnitud del impulso
         double J = 2 * this.getMass() * other.getMass() * dvdr / ((this.getMass() + other.getMass()) * dist);
@@ -154,6 +154,8 @@ public class Particle {
     public double getMass() {
         return mass;
     }
+
+    public long getId()  { return ID; }
 
     @Override
     public boolean equals(Object o) {
