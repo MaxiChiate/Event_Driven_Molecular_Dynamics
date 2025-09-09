@@ -3,7 +3,8 @@ public class Particle {
     private static long nextId = 0;
     private final long ID;
 
-    double x, y, vx, vy, radius, mass;
+    private double x, y, vx, vy, radius, mass;
+    private int collisionCount;
 
     public Particle(double x, double y, double vx, double vy, double radius, double mass) {
         this.ID = nextId++;
@@ -13,6 +14,7 @@ public class Particle {
         this.vy = vy;
         this.radius = radius;
         this.mass = mass;
+        this.collisionCount = 0;
     }
 
     public Particle(double x, double y, double vx, double vy, double radius) {
@@ -95,6 +97,14 @@ public class Particle {
 
     public void bounceOffBoundary() {
 
+    }
+
+    public void incrementCollisionCount() {
+        collisionCount++;
+    }
+
+    public int getCollisionCount() {
+        return collisionCount;
     }
 
     public void setX(double x) {
