@@ -1,5 +1,7 @@
 public class Particle {
 
+    public static double NO_HIT_TIME = Double.POSITIVE_INFINITY;
+
     private static long nextId = 0;
     private final long ID;
 
@@ -28,20 +30,20 @@ public class Particle {
         double dvy = other.getVy() - getVy();
 
         double dvdr = dx * dvx + dy * dvy;   // producto punto Δr · Δv
-        if (dvdr >= 0) return null; // se alejan
+        if (dvdr >= 0) return NO_HIT_TIME; // se alejan
 
         double dvdv = dvx * dvx + dvy * dvy;
         double drdr = dx * dx + dy * dy;
         double sigma = getRadius() + other.getRadius();
 
         double d = dvdr * dvdr - dvdv * (drdr - sigma * sigma);
-        if (d < 0) return null; // no hay solución real
+        if (d < 0) return NO_HIT_TIME; // no hay solución real
 
         return -(dvdr + Math.sqrt(d)) / dvdv;
     }
 
     public Double timeToHitBoundary()   {
-        return null;
+        return NO_HIT_TIME;
     }
 
     public void move(double dt) {

@@ -16,12 +16,12 @@ public class CollisionSystemPriorityQueue {
     }
 
     public Double nextStep() {
-        if(pq.isEmpty()) return null;
+        if(pq.isEmpty()) return Double.POSITIVE_INFINITY;
         Collision c = pq.poll();
 
         while(!c.isValid())    {   // Busco la proxima colisión válida
             if(pq.isEmpty()) {
-                return null;
+                return Double.POSITIVE_INFINITY;
             }
             else  {
                 c = pq.poll();
@@ -57,13 +57,16 @@ public class CollisionSystemPriorityQueue {
 
     private void predict(Particle p) {
         if (p == null) return;
+        Double t = p.timeToHitBoundary();
         // borde
-        pq.add(new Collision(p, null, currentTime + p.timeToHitBoundary()));
+        if(Double.compare(t, Particle.NO_HIT_TIME) < 0) {
+            pq.add(new Collision(p, null, currentTime + t));
+        }
         // otras partículas
         for (Particle other : particles) {
             if (p != other) {
-                double t = p.timeToHit(other);
-                if (t != Double.POSITIVE_INFINITY) {
+                t = p.timeToHit(other);
+                if (Double.compare(t, Particle.NO_HIT_TIME) < 0) {
                     pq.add(new Collision(p, other, currentTime + t));
                 }
             }
