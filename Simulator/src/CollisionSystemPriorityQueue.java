@@ -16,12 +16,12 @@ public class CollisionSystemPriorityQueue {
     }
 
     public Double nextStep() {
-        if(pq.isEmpty()) return Double.POSITIVE_INFINITY;
+        if(pq.isEmpty()) return Particle.NO_HIT_TIME;
         Collision c = pq.poll();
 
         while(!c.isValid())    {   // Busco la proxima colisión válida
             if(pq.isEmpty()) {
-                return Double.POSITIVE_INFINITY;
+                return Particle.NO_HIT_TIME;
             }
             else  {
                 c = pq.poll();
@@ -36,7 +36,7 @@ public class CollisionSystemPriorityQueue {
         Particle b = c.getP2();
 
         if (b != null) {
-            a.bounceOff(b);
+            a.bounceOffUnitMass(b);
         } else {
             a.bounceOffBoundary();
         }
@@ -64,7 +64,7 @@ public class CollisionSystemPriorityQueue {
         }
         // otras partículas
         for (Particle other : particles) {
-            if (p != other) {
+            if (p != other && p.getId() < other.getId()) {
                 t = p.timeToHit(other);
                 if (Double.compare(t, Particle.NO_HIT_TIME) < 0) {
                     pq.add(new Collision(p, other, currentTime + t));
@@ -72,6 +72,21 @@ public class CollisionSystemPriorityQueue {
             }
         }
     }
+
+    public void printState() {
+        System.out.println("=== Collision System State ===");
+        System.out.println("Current Time: " + currentTime);
+        System.out.println("Pending Collisions (in time order):");
+
+        PriorityQueue<Collision> copy = new PriorityQueue<>(pq);
+        while (!copy.isEmpty()) {
+            Collision c = copy.poll();
+            System.out.println("  " + c);
+        }
+        System.out.println("==============================");
+    }
+
 }
+
 
 
