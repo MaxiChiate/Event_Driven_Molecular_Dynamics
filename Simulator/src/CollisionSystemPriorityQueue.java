@@ -15,30 +15,38 @@ public class CollisionSystemPriorityQueue {
         }
     }
 
-    public void simulate() {
-        while (!pq.isEmpty()) {
-            Collision c = pq.poll();
+    public Double nextStep() {
+        if(pq.isEmpty()) return null;
+        Collision c = pq.poll();
 
-            if (!c.isValid()) continue; // ignorar si ya quedó obsoleta
-
-            double dt = c.getTime() - currentTime;
-            moveParticles(dt);
-            currentTime = c.getTime();
-
-            Particle a = c.getP1();
-            Particle b = c.getP2();
-
-            if (b != null) {
-                a.bounceOff(b);
-            } else {
-                a.bounceOffBoundary();
+        while(!c.isValid())    {   // Busco la proxima colisión válida
+            if(pq.isEmpty()) {
+                return null;
             }
-            a.incrementCollisionCount();
-            if (b != null) b.incrementCollisionCount();
-
-            predict(a);
-            if (b != null) predict(b);
+            else  {
+                c = pq.poll();
+            }
         }
+
+        double dt = c.getTime() - currentTime;
+        moveParticles(dt);
+        currentTime = c.getTime();
+
+        Particle a = c.getP1();
+        Particle b = c.getP2();
+
+        if (b != null) {
+            a.bounceOff(b);
+        } else {
+            a.bounceOffBoundary();
+        }
+        a.incrementCollisionCount();
+        if (b != null) b.incrementCollisionCount();
+
+        predict(a);
+        if (b != null) predict(b);
+
+        return dt;
     }
 
     private void moveParticles(double dt) {
