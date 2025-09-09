@@ -11,7 +11,7 @@ public class CollisionSystemPriorityQueue {
         this.particles = particles;
         // cargar colisiones iniciales
         for (Particle p : particles) {
-            predict(p);
+            predictExclusiveStrong(p);
         }
     }
 
@@ -36,14 +36,14 @@ public class CollisionSystemPriorityQueue {
         Particle b = c.getP2();
 
         if (b != null) {
-            a.bounceOffUnitMass(b);
+            a.bounceOff(b);
         } else {
             a.bounceOffBoundary();
         }
         a.incrementCollisionCount();
         if (b != null) b.incrementCollisionCount();
 
-        predict(a);
+        predictExclusive(a, b);
         if (b != null) predict(b);
 
         return currentTime;
@@ -57,21 +57,68 @@ public class CollisionSystemPriorityQueue {
 
     private void predict(Particle p) {
         if (p == null) return;
-        Double t = p.timeToHitBoundary();
-        // borde
-        if(Double.compare(t, Particle.NO_HIT_TIME) < 0) {
-            pq.add(new Collision(p, null, currentTime + t));
+        Double tMin, t;
+        tMin = t = p.timeToHitBoundary();
+        Particle other = null;
+
+        for (Particle p2 : particles) {
+            t = p.timeToHit(p2);
+
+            if(Double.compare(t, tMin) < 0) {
+                tMin = t;
+                other = p2;
+            }
         }
-        // otras partículas
-        for (Particle other : particles) {
-            if (p != other && p.getId() < other.getId()) {
-                t = p.timeToHit(other);
-                if (Double.compare(t, Particle.NO_HIT_TIME) < 0) {
-                    pq.add(new Collision(p, other, currentTime + t));
+
+        if(Double.compare(tMin, Particle.NO_HIT_TIME) < 0) {
+            pq.add(new Collision(p, other, tMin + currentTime));
+        }
+    }
+
+    private void predictExclusive(Particle p, Particle toExclude) {
+        if (p == null) return;
+        Double tMin, t;
+        tMin = t = p.timeToHitBoundary();
+        Particle other = null;
+
+        for (Particle p2 : particles) {
+            if (!p2.equals(toExclude)) {
+                t = p.timeToHit(p2);
+
+                if(Double.compare(t, tMin) < 0) {
+                    tMin = t;
+                    other = p2;
                 }
             }
         }
+
+        if(Double.compare(tMin, Particle.NO_HIT_TIME) < 0) {
+            pq.add(new Collision(p, other, tMin + currentTime));
+        }
     }
+
+    private void predictExclusiveStrong(Particle p) {
+        if (p == null) return;
+        Double tMin, t;
+        tMin = t = p.timeToHitBoundary();
+        Particle other = null;
+
+        for (Particle p2 : particles) {
+            if (p.getId() < p2.getId()) {
+                t = p.timeToHit(p2);
+
+                if(Double.compare(t, tMin) < 0) {
+                    tMin = t;
+                    other = p2;
+                }
+            }
+        }
+
+        if(Double.compare(tMin, Particle.NO_HIT_TIME) < 0) {
+            pq.add(new Collision(p, other, tMin + currentTime));
+        }
+    }
+
 
     public void printState() {
         System.out.println("=== Collision System State ===");

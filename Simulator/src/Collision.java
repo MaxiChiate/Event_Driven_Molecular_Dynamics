@@ -2,7 +2,7 @@ public class Collision implements Comparable<Collision> {
 
     private final Particle p1;
     private final Particle p2;
-    private Double time;
+    private Double time = 0.0;
 
     private final int count1;
     private final int count2;

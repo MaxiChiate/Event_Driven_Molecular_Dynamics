@@ -34,7 +34,7 @@ public class Particle {
 
         double dvdv = dvx * dvx + dvy * dvy;
         double drdr = dx * dx + dy * dy;
-        double sigma = getRadius() + other.getRadius();
+        double sigma = sigma(other);
 
         double d = dvdr * dvdr - dvdv * (drdr - sigma * sigma);
         if (d < 0) return NO_HIT_TIME; // no hay solución real
@@ -51,29 +51,6 @@ public class Particle {
         this.y += this.vy * dt;
     }
 
-    // Versión optimizada para masa = 1
-    public void bounceOffUnitMass(Particle other) {
-        double dx = other.x - this.x;
-        double dy = other.y - this.y;
-        double dvx = other.vx - this.vx;
-        double dvy = other.vy - this.vy;
-
-        double dvdr = dx * dvx + dy * dvy; // producto punto Δr · Δv
-
-//        if(dvdr < 0) return;
-
-        double dist = this.radius + other.radius;
-
-        double J = 2 * dvdr / (dist * dist);
-        double Jx = J * dx;
-        double Jy = J * dy;
-
-        this.vx += Jx;
-        this.vy += Jy;
-        other.vx -= Jx;
-        other.vy -= Jy;
-    }
-
     public void bounceOff(Particle other) {
         double dx = other.x - this.x;
         double dy = other.y - this.y;
@@ -81,7 +58,7 @@ public class Particle {
         double dvy = other.vy - this.vy;
 
         double dvdr = dx * dvx + dy * dvy; // producto punto Δr · Δv
-        double dist = this.radius + other.radius;
+        double dist = sigma(other);
 
 //        if(dvdr < 0) return;
 
@@ -107,6 +84,10 @@ public class Particle {
 
     public int getCollisionCount() {
         return collisionCount;
+    }
+
+    public double sigma(Particle other)   {
+        return getRadius() + other.getRadius();
     }
 
     public void setX(double x) {

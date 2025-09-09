@@ -1,5 +1,6 @@
 import java.util.*;
 
+@Deprecated
 public class CollisionSystem {
     private final List<Particle> particles;
 
@@ -34,7 +35,7 @@ public class CollisionSystem {
 
         // Recalculo las direcciones de las que colisionaron
         if(b != null)
-            a.bounceOffUnitMass(b);
+            a.bounceOff(b);
         else
             a.bounceOffBoundary();
 
