@@ -25,12 +25,12 @@ public class Simulator {
 
     public void executeSimulation(Path outputPath) throws IOException {
         try (OutputWriter out = OutputWriter.open(outputPath)) {
-            while (step < maxT) {
+            while (step < maxT && t != null) {
 
                 collisionSystem.printState();
 
                 out.writeStep(particleList, t);
-                t+= collisionSystem.nextStep();
+                t = collisionSystem.nextStep();
 
                 step++;
             }

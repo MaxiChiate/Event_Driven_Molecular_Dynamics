@@ -16,12 +16,12 @@ public class CollisionSystemPriorityQueue {
     }
 
     public Double nextStep() {
-        if(pq.isEmpty()) return Particle.NO_HIT_TIME;
+        if(pq.isEmpty()) return null;
         Collision c = pq.poll();
 
         while(!c.isValid())    {   // Busco la proxima colisión válida
             if(pq.isEmpty()) {
-                return Particle.NO_HIT_TIME;
+                return null;
             }
             else  {
                 c = pq.poll();
@@ -46,7 +46,7 @@ public class CollisionSystemPriorityQueue {
         predict(a);
         if (b != null) predict(b);
 
-        return dt;
+        return currentTime;
     }
 
     private void moveParticles(double dt) {
