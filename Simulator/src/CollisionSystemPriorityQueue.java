@@ -1,5 +1,6 @@
 import java.util.List;
 import java.util.PriorityQueue;
+import java.util.function.Predicate;
 
 public class CollisionSystemPriorityQueue {
 
@@ -56,69 +57,39 @@ public class CollisionSystemPriorityQueue {
     }
 
     private void predict(Particle p) {
-        if (p == null) return;
-        Double tMin, t;
-        tMin = t = p.timeToHitBoundary();
-        Particle other = null;
-
-        for (Particle p2 : particles) {
-            t = p.timeToHit(p2);
-
-            if(Double.compare(t, tMin) < 0) {
-                tMin = t;
-                other = p2;
-            }
-        }
-
-        if(Double.compare(tMin, Particle.NO_HIT_TIME) < 0) {
-            pq.add(new Collision(p, other, tMin + currentTime));
-        }
+        predictGeneral(p, p2 -> true);
     }
 
     private void predictExclusive(Particle p, Particle toExclude) {
-        if (p == null) return;
-        Double tMin, t;
-        tMin = t = p.timeToHitBoundary();
-        Particle other = null;
-
-        for (Particle p2 : particles) {
-            if (!p2.equals(toExclude)) {
-                t = p.timeToHit(p2);
-
-                if(Double.compare(t, tMin) < 0) {
-                    tMin = t;
-                    other = p2;
-                }
-            }
-        }
-
-        if(Double.compare(tMin, Particle.NO_HIT_TIME) < 0) {
-            pq.add(new Collision(p, other, tMin + currentTime));
-        }
+        predictGeneral(p, p2 -> !p2.equals(toExclude));
     }
 
     private void predictExclusiveStrong(Particle p) {
+        predictGeneral(p, p2 -> p.getId() < p2.getId());
+    }
+
+    private void predictGeneral(Particle p, Predicate<Particle> condition) {
         if (p == null) return;
-        Double tMin, t;
-        tMin = t = p.timeToHitBoundary();
+
+        double tMin = p.timeToHitBoundary();
+        double t;
         Particle other = null;
 
         for (Particle p2 : particles) {
-            if (p.getId() < p2.getId()) {
+            if (condition.test(p2)) {
                 t = p.timeToHit(p2);
 
-                if(Double.compare(t, tMin) < 0) {
+                if (Double.compare(t, tMin) < 0) {
                     tMin = t;
                     other = p2;
                 }
             }
         }
 
-        if(Double.compare(tMin, Particle.NO_HIT_TIME) < 0) {
+        if (Double.compare(tMin, Particle.NO_HIT_TIME) < 0) {
             pq.add(new Collision(p, other, tMin + currentTime));
         }
     }
-
 
     public void printState() {
         System.out.println("=== Collision System State ===");
