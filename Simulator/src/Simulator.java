@@ -27,16 +27,23 @@ public class Simulator {
         try (OutputWriter out = OutputWriter.open(outputPath)) {
             while (step < maxT && t != null) {
 
-                collisionSystem.printState();
+//                collisionSystem.printState();
 
                 out.writeStep(particleList, t);
                 t = collisionSystem.nextStep();
 
                 step++;
+
+                printProgress(step, maxT);
             }
         }
     }
 
+    private void printProgress(int step, int maxT) {
+        int percent = (int) ((step * 100.0) / maxT);
+        String bar = "=".repeat(percent / 2) + " ".repeat(50 - percent / 2);
+        System.out.printf("\r[%s] %d%%", bar, percent);
+    }
 
    public static void main(String[] args) throws IOException {
         int N = Integer.parseInt(args[0]);
@@ -59,8 +66,9 @@ public class Simulator {
             String L_dir = String.format(Locale.US, "L%.3f", L);
             Path directory = Files.createDirectories(Path.of(outputDir, "N_" + N + "_" + L_dir));
             Path fileName =  Path.of(directory + String.format("/output_N%d_%s_t%d_%s.csv", N, L_dir, maxTimesteps, String.format("%04d", i)));
-            Simulator s = new Simulator(L, particles,  fileName, maxTimesteps);
-        }
+            System.out.printf("\nStarting iteration %d/%d...\n", i + 1, iterations);
+            Simulator s = new Simulator(L, particles, fileName, maxTimesteps);
+            System.out.println("\nIteration " + (i + 1) + " completed.");        }
 
 
    }
