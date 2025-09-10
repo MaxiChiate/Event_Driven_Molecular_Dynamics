@@ -42,9 +42,9 @@ public class Particle {
         return -(dvdr + Math.sqrt(d)) / dvdv;
     }
 
-    public Double timeToHitBoundary()   {
-        return NO_HIT_TIME;
-    }
+//    public Double timeToHitBoundary()   {
+//        return NO_HIT_TIME;
+//    }
 
     public void move(double dt) {
         this.x += this.vx * dt;
@@ -74,9 +74,9 @@ public class Particle {
         other.vy -= Jy / other.getMass();
     }
 
-    public void bounceOffBoundary() {
-
-    }
+//    public void bounceOffBoundary() {
+//
+//    }
 
     public void incrementCollisionCount() {
         collisionCount++;

@@ -6,10 +6,13 @@ public class CollisionSystemPriorityQueue {
 
     private final List<Particle> particles;
     private final PriorityQueue<Collision> pq = new PriorityQueue<>();
+    private final Enclosure mainEnclosure;
+//    private final Enclosure secondEnclosure;
     private double currentTime = 0.0;
 
-    public CollisionSystemPriorityQueue(List<Particle> particles) {
+    public CollisionSystemPriorityQueue(List<Particle> particles, double L) {
         this.particles = particles;
+        mainEnclosure = new Enclosure(0.0, 0.0, L);
         // cargar colisiones iniciales
         for (Particle p : particles) {
             predictExclusiveStrong(p);
@@ -39,7 +42,7 @@ public class CollisionSystemPriorityQueue {
         if (b != null) {
             a.bounceOff(b);
         } else {
-            a.bounceOffBoundary();
+            mainEnclosure.bounceOffBoundary(a);
         }
         a.incrementCollisionCount();
         if (b != null) b.incrementCollisionCount();
@@ -71,7 +74,7 @@ public class CollisionSystemPriorityQueue {
     private void predictGeneral(Particle p, Predicate<Particle> condition) {
         if (p == null) return;
 
-        double tMin = p.timeToHitBoundary();
+        double tMin = mainEnclosure.timeToHitBoundary(p);
         double t;
         Particle other = null;
 

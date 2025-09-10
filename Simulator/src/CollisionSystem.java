@@ -37,7 +37,7 @@ public class CollisionSystem {
         if(b != null)
             a.bounceOff(b);
         else
-            a.bounceOffBoundary();
+//            a.bounceOffBoundary();
 
         // Restar dt a todas las demás colisiones
         advanceTime(dt);
@@ -59,7 +59,7 @@ public class CollisionSystem {
 
     private Collision computeNextCollisionFor(Particle particle) {
 
-        Collision nextCollision = new Collision(particle, null, particle.timeToHitBoundary());;
+        Collision nextCollision = new Collision(particle, null, 3.1415); //particle.timeToHitBoundary());;
         Double timeAux;
 
         for (Particle particleAux : particles) {
