@@ -1,5 +1,7 @@
 public class Particle {
 
+    public static double NO_HIT_TIME = Double.POSITIVE_INFINITY;
+
     private static long nextId = 0;
     private final long ID;
 
@@ -28,14 +30,14 @@ public class Particle {
         double dvy = other.getVy() - getVy();
 
         double dvdr = dx * dvx + dy * dvy;   // producto punto Δr · Δv
-        if (Utils.greaterOrEquals(dvdr, 0)) return Utils.NO_HIT_TIME; // se alejan
+        if (dvdr >= 0) return NO_HIT_TIME; // se alejan
 
         double dvdv = dvx * dvx + dvy * dvy;
         double drdr = dx * dx + dy * dy;
         double sigma = sigma(other);
 
         double d = dvdr * dvdr - dvdv * (drdr - sigma * sigma);
-        if (Utils.lessThan(d, 0)) return Utils.NO_HIT_TIME; // no hay solución real
+        if (d < 0) return NO_HIT_TIME; // no hay solución real
 
         return -(dvdr + Math.sqrt(d)) / dvdv;
     }
@@ -50,10 +52,10 @@ public class Particle {
     }
 
     public void bounceOff(Particle other) {
-        double dx = other.getX() - this.getX();
-        double dy = other.getY() - this.getY();
-        double dvx = other.getVx() - this.getVx();
-        double dvy = other.getVy() - this.getVy();
+        double dx = other.x - this.x;
+        double dy = other.y - this.y;
+        double dvx = other.vx - this.vx;
+        double dvy = other.vy - this.vy;
 
         double dvdr = dx * dvx + dy * dvy; // producto punto Δr · Δv
         double dist = sigma(other);
@@ -70,31 +72,7 @@ public class Particle {
         this.vy += Jy / this.getMass();
         other.vx -= Jx / other.getMass();
         other.vy -= Jy / other.getMass();
-
-//        fixOverlapping(other);
     }
-
-//    private void fixOverlapping(Particle other) {
-//        double dx = other.getX() - this.getX();
-//        double dy = other.getY() - this.getY();
-//        double actualDist = Math.sqrt(dx * dx + dy * dy);
-//        double minDist = sigma(other);
-//
-//        if (actualDist < minDist) {
-//            double overlap = minDist - actualDist;
-//            double nx = dx / actualDist;
-//            double ny = dy / actualDist;
-//
-//            double totalMass = this.getMass() + other.getMass();
-//            double shiftThis = overlap * (other.getMass() / totalMass);
-//            double shiftOther = overlap * (this.getMass() / totalMass);
-//
-//            this.x -= nx * shiftThis;
-//            this.y -= ny * shiftThis;
-//            other.x += nx * shiftOther;
-//            other.y += ny * shiftOther;
-//        }
-//    }
 
 //    public void bounceOffBoundary() {
 //

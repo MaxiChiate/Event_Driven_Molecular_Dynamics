@@ -48,7 +48,7 @@ public class CollisionSystemPriorityQueue {
         if (b != null) b.incrementCollisionCount();
 
         predictExclusive(a, b);
-        if (b != null) predictExclusive(b, a);
+        if (b != null) predict(b);
 
         return currentTime;
     }
@@ -82,14 +82,14 @@ public class CollisionSystemPriorityQueue {
             if (condition.test(p2)) {
                 t = p.timeToHit(p2);
 
-                if (Utils.lessThan(t, tMin)) {
+                if (Double.compare(t, tMin) < 0) {
                     tMin = t;
                     other = p2;
                 }
             }
         }
 
-        if (Utils.lessThan(tMin, Utils.NO_HIT_TIME)) {
+        if (Double.compare(tMin, Particle.NO_HIT_TIME) < 0) {
             pq.add(new Collision(p, other, tMin + currentTime));
         }
     }
@@ -105,12 +105,6 @@ public class CollisionSystemPriorityQueue {
             System.out.println("  " + c);
         }
         System.out.println("==============================");
-    }
-
-    public void printNextCollision()    {
-        System.out.println("=== Next Collision ===");
-        System.out.println("Current Time: " + currentTime);
-        System.out.println(pq.peek());
     }
 
 }

@@ -21,7 +21,7 @@ public class CollisionSystem {
         // Siguiente colisión
         Map.Entry<Particle, Collision> next = nextCollision();
 
-        if (next == null) return Utils.NO_HIT_TIME;
+        if (next == null) return Particle.NO_HIT_TIME;
 
         Collision collision = next.getValue();
         double dt = collision.getTime();
