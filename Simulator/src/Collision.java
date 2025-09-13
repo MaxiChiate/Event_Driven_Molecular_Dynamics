@@ -49,8 +49,8 @@ public class Collision implements Comparable<Collision> {
     public String toString() {
         return "Collision{" +
                 "p1=" + p1.getId() +
-                ", p2=" + p2.getId() +
+                ", " + (p2 == null ? "wall" : ("p2=" + p2.getId())) +
                 ", time=" + time +
-                '}';
+                "}\nParticle: " + p1;
     }
 }
