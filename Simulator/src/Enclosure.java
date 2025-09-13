@@ -36,40 +36,63 @@ public class Enclosure {
         double tx = Particle.NO_HIT_TIME;
         double ty = Particle.NO_HIT_TIME;
 
-        if (vx < 0)
+        Wall whichWallVertical = null;
+        Wall whichWallHorizontal = null;
+        if (vx < 0) {
 //            && !(neighborLeft != null && y >= doorMinY() && y <= doorMaxY()))
             tx = (left(p) - x) / vx;
-        if (vx > 0 )
+            whichWallVertical = Wall.LEFT;
+        }
+        if (vx > 0) {
 //            && !(neighborRight != null && y >= doorMinY() && y <= doorMaxY()))
             tx = (right(p) - x) / vx;
+            whichWallVertical = Wall.RIGHT;
+        }
 
-        if (vy < 0) ty = (top(p) - y) / vy;
-        if (vy > 0) ty = (bottom(p) - y) / vy;
+        if (vy < 0) {
+            ty = (top(p) - y) / vy;
+            whichWallHorizontal = Wall.TOP;
+        }
+        if (vy > 0){
+            ty = (bottom(p) - y) / vy;
+            whichWallHorizontal = Wall.BOTTOM;
+        }
 
-        double tmin = Math.min(tx, ty);
+        double tmin;
+        if (tx <= ty) {
+            p.setWhichWall(whichWallVertical);
+            tmin = tx;
+        } else {
+            p.setWhichWall(whichWallHorizontal);
+            tmin = ty;
+        }
         return tmin > 0 ? tmin : Particle.NO_HIT_TIME;
     }
 
     public void bounceOffBoundary(Particle p) {
-        double x = p.getX(), y = p.getY();
         double vx = p.getVx(), vy = p.getVy();
 
-        if (x - p.getRadius() <= x0)
-//            && !(neighborLeft != null && y >= doorMinY() && y <= doorMaxY()))
-            p.setVx(-vx);
-        if (x + p.getRadius() >= x0 + width)
-//            && !(neighborRight != null && y >= doorMinY() && y <= doorMaxY()))
-            p.setVx(-vx);
-        if (y - p.getRadius() <= y0)
-            p.setVy(-vy);
-        if (y + p.getRadius() >= y0 + height)
-            p.setVy(-vy);
+        switch (p.getWhichWall()) {
+            case Wall.LEFT, Wall.RIGHT -> p.setVx(-vx);
+            case Wall.TOP, Wall.BOTTOM -> p.setVy(-vy);
+        }
     }
 
-    private double left(Particle p) { return x0 + p.getRadius(); }
-    private double right(Particle p) { return x0 + width - p.getRadius(); }
-    private double top(Particle p) { return y0 + p.getRadius(); }
-    private double bottom(Particle p) { return y0 + height - p.getRadius(); }
+    private double left(Particle p) {
+        return x0 + p.getRadius();
+    }
+
+    private double right(Particle p) {
+        return x0 + width - p.getRadius();
+    }
+
+    private double top(Particle p) {
+        return y0 + p.getRadius();
+    }
+
+    private double bottom(Particle p) {
+        return y0 + height - p.getRadius();
+    }
 
 //    private double doorMinY() { return y0 + (height - L) / 2.0; }
 //    private double doorMaxY() { return y0 + (height + L) / 2.0; }

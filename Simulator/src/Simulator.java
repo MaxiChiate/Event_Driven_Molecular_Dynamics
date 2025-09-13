@@ -1,9 +1,7 @@
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Locale;
 
 public class Simulator {
@@ -45,7 +43,7 @@ public class Simulator {
         System.out.printf("\r[%s] %d%%", bar, percent);
     }
 
-   public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException {
         int N = Integer.parseInt(args[0]);
         double L = Double.parseDouble(args[1]);
         int iterations = Integer.parseInt(args[2]);
@@ -59,18 +57,18 @@ public class Simulator {
         for (int i = 0; i < iterations; i++) {
             InputParser parser = new InputParser(inputDir + "/N" + N + "/input_N" + N + "_" + String.format("%04d", i) + ".txt", N);
             ArrayList<Particle> particles = parser.parseInputs();
+            System.out.println(particles.size());
             if (particles.size() != N) {
                 System.out.println("Error: Number of particles does not match the expected amount");
                 return;
             }
             String L_dir = String.format(Locale.US, "L%.3f", L);
             Path directory = Files.createDirectories(Path.of(outputDir, "N_" + N + "_" + L_dir));
-            Path fileName =  Path.of(directory + String.format("/output_N%d_%s_t%d_%s.csv", N, L_dir, maxTimesteps, String.format("%04d", i)));
+            Path fileName = Path.of(directory + String.format("/output_N%d_%s_t%d_%s.csv", N, L_dir, maxTimesteps, String.format("%04d", i)));
             System.out.printf("\nStarting iteration %d/%d...\n", i + 1, iterations);
             Simulator s = new Simulator(L, particles, fileName, maxTimesteps);
-            System.out.println("\nIteration " + (i + 1) + " completed.");        }
-
-
-   }
+            System.out.println("\nIteration " + (i + 1) + " completed.");
+        }
+    }
 
 }
