@@ -107,6 +107,11 @@ public class CollisionSystemPriorityQueue {
         System.out.println("==============================");
     }
 
+    public void printNextCollision()    {
+        System.out.println("=== Next Collision ===");
+        System.out.println("Current Time: " + currentTime);
+        System.out.println(pq.peek());
+    }
 }
 
 
