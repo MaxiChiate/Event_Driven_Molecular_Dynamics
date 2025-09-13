@@ -28,6 +28,10 @@ public class CollisionSystemPriorityQueue {
                 return null;
             }
             else  {
+//                if(c.getP2() == null ) {
+//                    System.out.println("========= Collision descartada ============");
+//                    System.out.println(c);
+//                }
                 c = pq.poll();
             }
         }
@@ -39,16 +43,13 @@ public class CollisionSystemPriorityQueue {
         Particle a = c.getP1();
         Particle b = c.getP2();
 
-        if (b != null) {
-            a.bounceOff(b);
-        } else {
-            mainEnclosure.bounceOffBoundary(a);
-        }
+        c.resolve();
+
         a.incrementCollisionCount();
         if (b != null) b.incrementCollisionCount();
 
         predictExclusive(a, b);
-        if (b != null) predict(b);
+        if (b != null) predictExclusive(b,a);
 
         return currentTime;
     }
@@ -74,11 +75,13 @@ public class CollisionSystemPriorityQueue {
     private void predictGeneral(Particle p, Predicate<Particle> condition) {
         if (p == null) return;
 
-        double tMin = mainEnclosure.timeToHitBoundary(p);
+        WallCollision wallCollision = mainEnclosure.timeToHitBoundary(p);
+        double tMin = wallCollision.getTime();
         double t;
         Particle other = null;
 
         for (Particle p2 : particles) {
+            if(p2.equals(p)) continue;
             if (condition.test(p2)) {
                 t = p.timeToHit(p2);
 
@@ -90,7 +93,13 @@ public class CollisionSystemPriorityQueue {
         }
 
         if (Double.compare(tMin, Particle.NO_HIT_TIME) < 0) {
-            pq.add(new Collision(p, other, tMin + currentTime));
+            if(wallCollision.getTime() <= tMin) {
+                wallCollision.setTime(tMin + currentTime);
+                pq.add(wallCollision);
+            }
+            else {
+                pq.add(new ParticleCollision(p, other, tMin + currentTime));
+            }
         }
     }
 

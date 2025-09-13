@@ -26,13 +26,14 @@ public class Simulator {
             while (step < maxT && t != null) {
 
 //                collisionSystem.printState();
+//                collisionSystem.printNextCollision();
 
                 out.writeStep(particleList, t);
                 t = collisionSystem.nextStep();
 
                 step++;
 
-                printProgress(step, maxT);
+//                printProgress(step, maxT);
             }
         }
     }

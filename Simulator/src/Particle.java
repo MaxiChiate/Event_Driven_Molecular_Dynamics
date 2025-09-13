@@ -7,7 +7,6 @@ public class Particle {
 
     private double x, y, vx, vy, radius, mass;
     private int collisionCount;
-    private Wall whichWall;
 
     public Particle(double x, double y, double vx, double vy, double radius, double mass) {
         this.ID = nextId++;
@@ -154,13 +153,5 @@ public class Particle {
     @Override
     public String toString() {
         return "Particle: " + ID + ", x,y = (" + x + ", " + y + "), v = (" + vx + ", " + vy + "), radius = " + radius + ", mass = " + mass;
-    }
-
-    public void setWhichWall(Wall whichWall) {
-        this.whichWall = whichWall;
-    }
-
-    public Wall getWhichWall() {
-        return whichWall;
     }
 }

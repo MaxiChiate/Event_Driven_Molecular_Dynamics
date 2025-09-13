@@ -29,54 +29,49 @@ public class Enclosure {
         this.neighborRight = neighbor;
     }
 
-    public double timeToHitBoundary(Particle p) {
+    public WallCollision timeToHitBoundary(Particle p) {
         double vx = p.getVx(), vy = p.getVy();
         double x = p.getX(), y = p.getY();
 
         double tx = Particle.NO_HIT_TIME;
         double ty = Particle.NO_HIT_TIME;
 
-        Wall whichWallVertical = null;
-        Wall whichWallHorizontal = null;
+        Wall wallX = null;
+        Wall wallY = null;
+
         if (vx < 0) {
-//            && !(neighborLeft != null && y >= doorMinY() && y <= doorMaxY()))
             tx = (left(p) - x) / vx;
-            whichWallVertical = Wall.LEFT;
+            wallX = Wall.LEFT;
         }
         if (vx > 0) {
-//            && !(neighborRight != null && y >= doorMinY() && y <= doorMaxY()))
             tx = (right(p) - x) / vx;
-            whichWallVertical = Wall.RIGHT;
+            wallX = Wall.RIGHT;
         }
 
         if (vy < 0) {
             ty = (top(p) - y) / vy;
-            whichWallHorizontal = Wall.TOP;
+            wallY = Wall.TOP;
         }
-        if (vy > 0){
+        if (vy > 0) {
             ty = (bottom(p) - y) / vy;
-            whichWallHorizontal = Wall.BOTTOM;
+            wallY = Wall.BOTTOM;
         }
 
-        double tmin;
         if (tx <= ty) {
-            p.setWhichWall(whichWallVertical);
-            tmin = tx;
+            return tx > 0 ? new WallCollision(p, wallX, tx) : new WallCollision(p, wallX, Particle.NO_HIT_TIME);
         } else {
-            p.setWhichWall(whichWallHorizontal);
-            tmin = ty;
-        }
-        return tmin > 0 ? tmin : Particle.NO_HIT_TIME;
-    }
-
-    public void bounceOffBoundary(Particle p) {
-        double vx = p.getVx(), vy = p.getVy();
-
-        switch (p.getWhichWall()) {
-            case Wall.LEFT, Wall.RIGHT -> p.setVx(-vx);
-            case Wall.TOP, Wall.BOTTOM -> p.setVy(-vy);
+            return ty > 0 ? new WallCollision(p, wallY, ty) : new WallCollision(p, wallY, Particle.NO_HIT_TIME);
         }
     }
+
+//    public void bounceOffBoundary(Particle p) {
+//        double vx = p.getVx(), vy = p.getVy();
+//
+//        switch (p.getWhichWall()) {
+//            case Wall.LEFT, Wall.RIGHT -> p.setVx(-vx);
+//            case Wall.TOP, Wall.BOTTOM -> p.setVy(-vy);
+//        }
+//    }
 
     private double left(Particle p) {
         return x0 + p.getRadius();
