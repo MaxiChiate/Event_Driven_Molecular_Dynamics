@@ -33,8 +33,8 @@ public class Enclosure {
         double vx = p.getVx(), vy = p.getVy();
         double x = p.getX(), y = p.getY();
 
-        double tx = Particle.NO_HIT_TIME;
-        double ty = Particle.NO_HIT_TIME;
+        double tx = Utils.NO_HIT_TIME;
+        double ty = Utils.NO_HIT_TIME;
 
         if (vx < 0)
 //            && !(neighborLeft != null && y >= doorMinY() && y <= doorMaxY()))
@@ -47,24 +47,50 @@ public class Enclosure {
         if (vy > 0) ty = (bottom(p) - y) / vy;
 
         double tmin = Math.min(tx, ty);
-        return tmin > 0 ? tmin : Particle.NO_HIT_TIME;
+        return Utils.greaterThan(tmin, 0.0) ? tmin : Utils.NO_HIT_TIME;
     }
 
     public void bounceOffBoundary(Particle p) {
         double x = p.getX(), y = p.getY();
         double vx = p.getVx(), vy = p.getVy();
 
-        if (x - p.getRadius() <= x0)
-//            && !(neighborLeft != null && y >= doorMinY() && y <= doorMaxY()))
+        if (Utils.lessOrEquals(x - p.getRadius(), x0)) {
             p.setVx(-vx);
-        if (x + p.getRadius() >= x0 + width)
-//            && !(neighborRight != null && y >= doorMinY() && y <= doorMaxY()))
+        }
+        if (Utils.greaterOrEquals(x + p.getRadius(), x0 + width)) {
             p.setVx(-vx);
-        if (y - p.getRadius() <= y0)
+        }
+        if (Utils.lessOrEquals(y - p.getRadius(), y0)) {
             p.setVy(-vy);
-        if (y + p.getRadius() >= y0 + height)
+        }
+        if (Utils.greaterOrEquals(y + p.getRadius(), y0 + height)) {
             p.setVy(-vy);
+        }
     }
+
+//    public void fixOverlapping(Particle p) {
+//        double x = p.getX();
+//        double y = p.getY();
+//        double r = p.getRadius();
+//
+//        double left = left(p);
+//        double right = right(p);
+//        double top = top(p);
+//        double bottom = bottom(p);
+//
+//        if (x < left) {
+//            p.setX(left);
+//        } else if (x > right) {
+//            p.setX(right);
+//        }
+//
+//        if (y < top) {
+//            p.setY(top);
+//        } else if (y > bottom) {
+//            p.setY(bottom);
+//        }
+//    }
+
 
     private double left(Particle p) { return x0 + p.getRadius(); }
     private double right(Particle p) { return x0 + width - p.getRadius(); }

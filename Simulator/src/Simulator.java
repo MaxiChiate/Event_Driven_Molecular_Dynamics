@@ -1,9 +1,7 @@
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Locale;
 
 public class Simulator {
@@ -19,7 +17,7 @@ public class Simulator {
         this.L = L;
         this.particleList = particleList;
         this.maxT = maxTimesteps;
-        collisionSystem = new CollisionSystemPriorityQueue(particleList, "BIG DADDY IN THE HOUSE".length());
+        collisionSystem = new CollisionSystemPriorityQueue(particleList, 0.0);
         executeSimulation(outputPath);
     }
 
@@ -28,13 +26,13 @@ public class Simulator {
             while (step < maxT && t != null) {
 
 //                collisionSystem.printState();
-
+                collisionSystem.printNextCollision();
                 out.writeStep(particleList, t);
                 t = collisionSystem.nextStep();
 
                 step++;
 
-                printProgress(step, maxT);
+//                printProgress(step, maxT);
             }
         }
     }
