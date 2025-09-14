@@ -63,7 +63,7 @@ public class Particle {
 //        if(dvdr < 0) return;
 
         // magnitud del impulso
-        double J = 2 * this.getMass() * other.getMass() * dvdr / ((this.getMass() + other.getMass()) * dist);
+        double J = 2.0 * this.getMass() * other.getMass() * dvdr / ((this.getMass() + other.getMass()) * dist);
         double Jx = J * dx / dist;
         double Jy = J * dy / dist;
 
