@@ -17,7 +17,7 @@ public class Simulator {
         this.L = L;
         this.particleList = particleList;
         this.maxT = maxTimesteps;
-        collisionSystem = new CollisionSystemPriorityQueue(particleList, "BIG DADDY IN THE HOUSE".length());
+        collisionSystem = new CollisionSystemPriorityQueue(particleList, L);
         executeSimulation(outputPath);
     }
 
@@ -26,13 +26,14 @@ public class Simulator {
             while (step < maxT && t != null) {
 
 //                collisionSystem.printState();
+//                collisionSystem.printNextCollision();
 
                 out.writeStep(particleList, t);
                 t = collisionSystem.nextStep();
 
                 step++;
 
-                printProgress(step, maxT);
+//                printProgress(step, maxT);
             }
         }
     }

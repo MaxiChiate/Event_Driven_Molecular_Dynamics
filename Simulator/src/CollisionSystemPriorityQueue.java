@@ -12,7 +12,7 @@ public class CollisionSystemPriorityQueue {
 
     public CollisionSystemPriorityQueue(List<Particle> particles, double L) {
         this.particles = particles;
-        mainEnclosure = new Enclosure(0.0, 0.0, L);
+        mainEnclosure = new Enclosure(0.0, 0.0, 0.09);
         // cargar colisiones iniciales
         for (Particle p : particles) {
             predictExclusiveStrong(p);
@@ -28,6 +28,10 @@ public class CollisionSystemPriorityQueue {
                 return null;
             }
             else  {
+//                if(c.getP2() == null ) {
+//                    System.out.println("========= Collision descartada ============");
+//                    System.out.println(c);
+//                }
                 c = pq.poll();
             }
         }
@@ -39,16 +43,13 @@ public class CollisionSystemPriorityQueue {
         Particle a = c.getP1();
         Particle b = c.getP2();
 
-        if (b != null) {
-            a.bounceOff(b);
-        } else {
-            mainEnclosure.bounceOffBoundary(a);
-        }
+        c.resolve();
+
         a.incrementCollisionCount();
         if (b != null) b.incrementCollisionCount();
 
-        predictExclusive(a, b);
-        if (b != null) predict(b);
+        predict(a);
+        if (b != null) predictExclusive(b, a);
 
         return currentTime;
     }
@@ -74,23 +75,20 @@ public class CollisionSystemPriorityQueue {
     private void predictGeneral(Particle p, Predicate<Particle> condition) {
         if (p == null) return;
 
-        double tMin = mainEnclosure.timeToHitBoundary(p);
-        double t;
-        Particle other = null;
-
-        for (Particle p2 : particles) {
-            if (condition.test(p2)) {
-                t = p.timeToHit(p2);
-
-                if (Double.compare(t, tMin) < 0) {
-                    tMin = t;
-                    other = p2;
-                }
-            }
+        // Enqueue next wall collision (minimum among four walls)
+        WallCollision wc = mainEnclosure.timeToHitBoundary(p);
+        if (wc.getTime() < Particle.NO_HIT_TIME) {
+            wc.setTime(wc.getTime() + currentTime);
+            pq.add(wc);
         }
 
-        if (Double.compare(tMin, Particle.NO_HIT_TIME) < 0) {
-            pq.add(new Collision(p, other, tMin + currentTime));
+        for (Particle p2 : particles) {
+            if (p2.equals(p)) continue;
+            if (!condition.test(p2)) continue;
+            double t = p.timeToHit(p2);
+            if (t < Particle.NO_HIT_TIME) {
+                pq.add(new ParticleCollision(p, p2, t + currentTime));
+            }
         }
     }
 
