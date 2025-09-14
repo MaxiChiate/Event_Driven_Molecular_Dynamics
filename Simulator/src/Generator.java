@@ -8,13 +8,18 @@ import java.util.Locale;
 //x, y, v_x, v_y, radius
 public class Generator {
 
-    private static final int PARTICLES_AMOUNT = 300;
-    private static final double BOARD_SIZE = 0.09;
-    private static final double SPEED = 0.01;
-    private static final double RADIUS = 0.0015;
-    private static final int ITERATIONS = 5;
+    private final int particleCount;
+    private final double boardSize;
+    private final double speed;
+    private final double radius;
     private static final String OUTPUT_PATH = "./inputs";
 
+    public Generator(int particleCount, double boardSize, double speed, double radius) {
+        this.particleCount = particleCount;
+        this.boardSize = boardSize;
+        this.speed = speed;
+        this.radius = radius;
+    }
 
     public boolean checkOverlap(Particle p1, Particle p2) {
         double dx = p1.getX() - p2.getX();
@@ -24,7 +29,7 @@ public class Generator {
     }
 
     public boolean checkCollision(Particle[] particles, Particle new_particle, int created_particles) {
-        for (int i = 0; i < created_particles; i ++) {
+        for (int i = 0; i < created_particles; i++) {
             if (checkOverlap(particles[i], new_particle)) return true;
         }
         return false;
@@ -32,26 +37,26 @@ public class Generator {
 
 
     public void generateInputs(int iteration) throws IOException {
-        String dirPath = OUTPUT_PATH + "/" + "N" + PARTICLES_AMOUNT;
+        String dirPath = OUTPUT_PATH + "/" + "N" + particleCount;
         Files.createDirectories(Path.of(dirPath));
-        String fileName = String.format("input_N%d_%s.txt", PARTICLES_AMOUNT, String.format("%04d", iteration));
+        String fileName = String.format("input_N%d_%s.txt", particleCount, String.format("%04d", iteration));
         File file = new File(dirPath + "/" + fileName);
         if (file.exists()) {
             file.delete();
         }
         file.createNewFile();
-        int i=0;
-        Particle[] particles = new Particle[PARTICLES_AMOUNT];
-        while (i < PARTICLES_AMOUNT) {
-            double x = Math.random() * (BOARD_SIZE - 2 * RADIUS) + RADIUS;
-            double y = Math.random() * (BOARD_SIZE - 2 * RADIUS) + RADIUS;
+        int i = 0;
+        Particle[] particles = new Particle[particleCount];
+        while (i < particleCount) {
+            double x = Math.random() * (boardSize - 2 * radius) + radius;
+            double y = Math.random() * (boardSize - 2 * radius) + radius;
             double angle = Math.random() * 2 * Math.PI;
-            double vx = SPEED * Math.cos(angle);
-            double vy = SPEED * Math.sin(angle);
-            Particle new_particle = new Particle(x, y, vx, vy, RADIUS);
+            double vx = speed * Math.cos(angle);
+            double vy = speed * Math.sin(angle);
+            Particle new_particle = new Particle(x, y, vx, vy, radius);
             if (!checkCollision(particles, new_particle, i)) {
                 particles[i] = new_particle;
-                String particle = String.format(Locale.US, "%.17g %.17g %.17g %.17g %.5f%n", x, y, vx, vy, RADIUS);
+                String particle = String.format(Locale.US, "%.17g %.17g %.17g %.17g %.5f%n", x, y, vx, vy, radius);
                 java.nio.file.Files.write(file.toPath(), particle.getBytes(), java.nio.file.StandardOpenOption.APPEND);
                 i++;
             }
@@ -62,8 +67,17 @@ public class Generator {
 
 
     public static void main(String[] args) throws IOException {
-        Generator gen = new Generator();
-        for (int i = 0; i < ITERATIONS; i++) {
+        int N = Integer.parseInt(args[0]);
+        double L = Double.parseDouble(args[1]);
+        double speed = Double.parseDouble(args[2]);
+        double radius = Double.parseDouble(args[3]);
+        int iterations = Integer.parseInt(args[4]);
+        if (N <= 0 || L <= 0 || speed <= 0 || radius <= 0 || iterations <= 0) {
+            System.out.println("Error: Parameters should be: N, L, speed, radius, iterations");
+            return;
+        }
+        Generator gen = new Generator(N, L, speed, radius);
+        for (int i = 0; i < iterations; i++) {
             gen.generateInputs(i);
         }
     }
