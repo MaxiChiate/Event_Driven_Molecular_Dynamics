@@ -99,7 +99,7 @@ async function generateVideo(inputPath, outputFile, videoWidth, videoHeight, vid
   for await (const [time, particles] of timestepIterator) {
     if (prevTime !== null) {
       // Interpolated frames between previous timestep and current
-      for (let t = prevTime; t < time; t += dt) {
+      for (let t = prevTime + dt; t < time; t += dt) {
         const alpha = t - prevTime;
         const interpParticles = prevParticles.map((p) => ({
           ...p,
