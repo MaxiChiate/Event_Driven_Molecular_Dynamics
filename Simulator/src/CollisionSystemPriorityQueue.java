@@ -117,6 +117,10 @@ public class CollisionSystemPriorityQueue {
         System.out.println("Current Time: " + currentTime);
         System.out.println(pq.peek());
     }
+
+    public double getCurrentTime() {
+        return currentTime;
+    }
 }
 
 

@@ -10,21 +10,20 @@ public class Simulator {
     private final ArrayList<Particle> particleList;
     private final CollisionSystemPriorityQueue collisionSystem;
     private Double t = 0.0;
-    private final int maxT;
+    private final int duration;
     private int step;
 
-    public Simulator(double L, ArrayList<Particle> particleList, Path outputPath, int maxTimesteps) throws IOException {
+    public Simulator(double L, ArrayList<Particle> particleList, Path outputPath, int simluationDuration) throws IOException {
         this.L = L;
         this.particleList = particleList;
-        this.maxT = maxTimesteps;
+        this.duration = simluationDuration;
         collisionSystem = new CollisionSystemPriorityQueue(particleList, L);
         executeSimulation(outputPath);
     }
 
     public void executeSimulation(Path outputPath) throws IOException {
         try (OutputWriter out = OutputWriter.open(outputPath)) {
-            while (step < maxT && t != null) {
-
+            while (collisionSystem.getCurrentTime() < duration && t != null) {
 //                collisionSystem.printState();
 //                collisionSystem.printNextCollision();
 
@@ -48,11 +47,11 @@ public class Simulator {
         int N = Integer.parseInt(args[0]);
         double L = Double.parseDouble(args[1]);
         int iterations = Integer.parseInt(args[2]);
-        int maxTimesteps = Integer.parseInt(args[3]);
+        int simulationDuration = Integer.parseInt(args[3]);
         String inputDir = args[4];
         String outputDir = args[5];
-        if (N <= 0 || L <= 0 || iterations <= 0 || maxTimesteps <= 0 || inputDir.isEmpty() || outputDir.isEmpty()) {
-            System.out.println("Error: Parameters should be: N, L, iterations, maxTimesteps");
+        if (N <= 0 || L <= 0 || iterations <= 0 || simulationDuration <= 0 || inputDir.isEmpty() || outputDir.isEmpty()) {
+            System.out.println("Error: Parameters should be: N, L, iterations, simulationDuration");
             return;
         }
         for (int i = 0; i < iterations; i++) {
@@ -65,9 +64,9 @@ public class Simulator {
             }
             String L_dir = String.format(Locale.US, "L%.3f", L);
             Path directory = Files.createDirectories(Path.of(outputDir, "N_" + N + "_" + L_dir));
-            Path fileName = Path.of(directory + String.format("/output_N%d_%s_t%d_%s.csv", N, L_dir, maxTimesteps, String.format("%04d", i)));
+            Path fileName = Path.of(directory + String.format("/output_N%d_%s_t%d_%s.csv", N, L_dir, simulationDuration, String.format("%04d", i)));
             System.out.printf("\nStarting iteration %d/%d...\n", i + 1, iterations);
-            Simulator s = new Simulator(L, particles, fileName, maxTimesteps);
+            Simulator s = new Simulator(L, particles, fileName, simulationDuration);
             System.out.println("\nIteration " + (i + 1) + " completed.");
         }
     }
