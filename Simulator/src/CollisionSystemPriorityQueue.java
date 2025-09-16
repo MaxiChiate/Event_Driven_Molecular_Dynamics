@@ -9,6 +9,13 @@ public class CollisionSystemPriorityQueue {
     private final Enclosure mainEnclosure;
 //    private final Enclosure secondEnclosure;
     private double currentTime = 0.0;
+    private WallCollision collision = null;
+
+    public WallCollision getWallCollision(){
+        WallCollision retCollision = collision;
+        collision = null;
+        return retCollision;
+    }
 
     public CollisionSystemPriorityQueue(List<Particle> particles, double L) {
         this.particles = particles;
@@ -43,7 +50,7 @@ public class CollisionSystemPriorityQueue {
         Particle a = c.getP1();
         Particle b = c.getP2();
 
-        c.resolve();
+        collision = c.resolve();
 
         a.incrementCollisionCount();
         if (b != null) b.incrementCollisionCount();

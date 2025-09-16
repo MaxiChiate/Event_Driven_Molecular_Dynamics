@@ -28,7 +28,7 @@ public class Simulator {
 //                collisionSystem.printState();
 //                collisionSystem.printNextCollision();
 
-                out.writeStep(particleList, t);
+                out.writeStep(particleList, t, collisionSystem.getWallCollision());
                 t = collisionSystem.nextStep();
 
                 step++;

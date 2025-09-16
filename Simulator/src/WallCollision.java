@@ -6,14 +6,19 @@ public class WallCollision extends Collision {
         super(p1, time);
         this.wall = wall;
     }
+    public Wall getWall() {
+        return  wall;
+    }
 
     @Override
-    public void resolve() {
+    public WallCollision resolve() {
         Particle p = getP1();
+        WallCollision c = new WallCollision(this.getP1(), wall, this.getTime());
         switch (wall) {
             case LEFT, RIGHT -> p.setVx(-p.getVx());
             case TOP, BOTTOM -> p.setVy(-p.getVy());
         }
+        return c;
     }
 
     @Override

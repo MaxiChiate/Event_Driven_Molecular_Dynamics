@@ -31,11 +31,24 @@ public class OutputWriter implements AutoCloseable {
     }
 
 
-    public void writeStep(List<Particle> particles, double time) throws IOException {
+    private double getNormalSpeed(WallCollision wc) {
+        Wall wallCollision = wc.getWall();
+        if (wallCollision == Wall.LEFT || wallCollision == Wall.RIGHT ) {
+            return wc.getP1().getVx();
+        }
+        else return wc.getP1().getVy();
+    }
+
+
+    public void writeStep(List<Particle> particles, double time, WallCollision collision) throws IOException {
         //Buffer to 0 length
         sb.setLength(0);
 
-        fmt.format("%.4f%n", time);
+        if (collision == null)
+            fmt.format("%.4f%n", time);
+        else
+            fmt.format("%.4f,%d,%.17g%n", time, collision.getWall().ordinal(), Math.abs(getNormalSpeed(collision)));
+
 
         for (Particle p : particles) {
             fmt.format("%.17g,%.17g,%.17g,%.17g,%.5f%n", p.getX(), p.getY(), p.getVx(), p.getVy(), p.getRadius());

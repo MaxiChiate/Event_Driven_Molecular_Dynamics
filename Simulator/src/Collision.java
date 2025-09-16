@@ -44,7 +44,7 @@ public abstract class Collision implements Comparable<Collision> {
     }
 
     /** Cada subclase define cómo resolver la colisión */
-    public abstract void resolve();
+    public abstract WallCollision resolve();
 
     @Override
     public String toString() {

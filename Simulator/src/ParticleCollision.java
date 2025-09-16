@@ -23,8 +23,9 @@ public class ParticleCollision extends Collision {
     }
 
     @Override
-    public void resolve() {
+    public WallCollision resolve() {
         getP1().bounceOff(p2);
+        return null;
     }
 
     @Override
