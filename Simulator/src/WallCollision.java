@@ -11,9 +11,9 @@ public class WallCollision extends Collision {
     }
 
     @Override
-    public WallCollision resolve() {
+    public WallCollisionDTO resolve() {
         Particle p = getP1();
-        WallCollision c = new WallCollision(this.getP1(), wall, this.getTime());
+        WallCollisionDTO c = new WallCollisionDTO(p.getVx(), p.getVy(), wall, this.getTime());
         switch (wall) {
             case LEFT, RIGHT -> p.setVx(-p.getVx());
             case TOP, BOTTOM -> p.setVy(-p.getVy());

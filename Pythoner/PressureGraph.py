@@ -4,8 +4,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # ====== CONFIG ======
-INPUT_PATH = "./outputs/N_300_L0.090/output_N300_L0.090_t100000_0000.csv"  # tu csv
-DELTA_T    = 3.0                 # tamaño del bin Δt
+INPUT_PATH = "./Simulator/outputs/N_300_L0.090/output_N300_L0.090_t100000_0000_collisions.csv"  # tu csv
+DELTA_T    = 2                 # tamaño del bin Δt
 MASS       = 1.0                 # masa de partícula
 OUT_DIR    = "images"
 L          = 0.09
@@ -16,30 +16,30 @@ L_BIG_WALLS   = [0.09, 0.09, 0.09, 0.09]     # TOP, BOTTOM, LEFT, RIGHT del reci
 # SMALL enclosure: paredes con wall id 4..7
 L_SMALL_WALLS = [0.09, 0.09, L, L]     # ajustá a tu brazo (o lo que corresponda)
 # ====================
-
 def parse_blocks(path):
     """
-    Bloques:
-      cabecera: t,(wall?),(v_normal?) → 1,2 o 3 campos
-      luego N líneas x,y,vx,vy,r
-    Devuelve lista de dicts: {'t': float, 'wall': int|-1, 'vnorm': float|None}
+    Flat format only: one collision per line -> t,wall,vnorm
+    - t: float (seconds)
+    - wall: int (e.g., 0..7)
+    - vnorm: float (absolute normal velocity before bounce)
+    Returns: list[{'t': float, 'wall': int, 'vnorm': float}]
     """
     recs = []
     with open(path, "r", encoding="utf-8") as f:
-        lines = [ln.strip() for ln in f if ln.strip()]
-    i, n = 0, len(lines)
-    while i < n:
-        head = [s.strip() for s in lines[i].split(",")]
-        t = float(head[0]); wall = -1; vnorm = None
-        if len(head) >= 2 and head[1] != "": wall = int(head[1])
-        if len(head) >= 3 and head[2] != "": vnorm = float(head[2])
-        i += 1
-        # saltar líneas de partículas (5 campos)
-        while i < n:
-            parts = lines[i].split(",")
-            if len(parts) != 5: break
-            i += 1
-        recs.append({"t": t, "wall": wall, "vnorm": vnorm})
+        for ln in f:
+            ln = ln.strip()
+            if not ln or ln.lstrip().startswith("#"):
+                continue
+            parts = [p.strip() for p in ln.split(",")]
+            try:
+                t = float(parts[0])
+                wall = int(parts[1])
+                vnorm = float(parts[2])
+            except ValueError:
+                continue
+            recs.append({"t": t, "wall": wall, "vnorm": vnorm})
+
+    recs.sort(key=lambda r: r["t"])
     return recs
 
 def pressures_per_bin_split(recs, delta_t, L_big, L_small, mass=1.0):
@@ -78,7 +78,6 @@ def pressures_per_bin_split(recs, delta_t, L_big, L_small, mass=1.0):
                 idx = r["wall"] - 4
                 if 0 <= idx < 4:
                     imp_small[idx] += dp
-                # si tuvieras más de 8 paredes, extendé los arreglos y el mapeo
 
         # cerrar bins hasta alcanzar el próximo tiempo (sin forzar bins vacíos al final)
         t_next = recs[k]["t"] if k < len(recs) else recs[-1]["t"]
@@ -121,7 +120,7 @@ def plot_totals(times, P_big, P_small, tag=""):
     plt.xlabel("Tiempo (s)")
     plt.ylabel("Presión ($N/m$)")
     plt.grid(); plt.legend(loc="upper right")
-    path = os.path.join(OUT_DIR, f"pressure_totals_{tag}.png")
+    path = os.path.join(OUT_DIR, f"pressure_totals_{tag}_{L}.png")
     plt.savefig(path, dpi=160, bbox_inches="tight"); plt.close()
     print(f"Saved {path}")
 
@@ -134,7 +133,7 @@ def plot_walls(times, Pwalls, which="big", tag=""):
     plt.xlabel("Tiempo (s)")
     plt.ylabel(f"Presión por pared {which.upper()} ($N/m$)")
     plt.grid(); plt.legend(loc="upper right")
-    path = os.path.join(OUT_DIR, f"pressure_walls_{which}_{tag}.png")
+    path = os.path.join(OUT_DIR, f"pressure_walls_{which}_{tag}_{L}.png")
     plt.savefig(path, dpi=160, bbox_inches="tight"); plt.close()
     print(f"Saved {path}")
 

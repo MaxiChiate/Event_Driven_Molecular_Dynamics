@@ -11,12 +11,23 @@ import java.util.Locale;
 public class OutputWriter implements AutoCloseable {
 
     private final BufferedWriter bw;
+    private final BufferedWriter collisionsBw;
     private final StringBuilder sb;
     private final Formatter fmt;
 
     private OutputWriter(Path path) throws IOException {
         this.bw = Files.newBufferedWriter(
                 path,
+                StandardCharsets.UTF_8,
+                StandardOpenOption.CREATE,
+                StandardOpenOption.TRUNCATE_EXISTING,
+                StandardOpenOption.WRITE
+        );
+        String baseName = path.getFileName().toString();
+        String collisionsName = baseName.substring(0, baseName.length() - 4) + "_collisions.csv";
+        Path collisionsPath = path.resolveSibling(collisionsName);
+        this.collisionsBw = Files.newBufferedWriter(
+                collisionsPath,
                 StandardCharsets.UTF_8,
                 StandardOpenOption.CREATE,
                 StandardOpenOption.TRUNCATE_EXISTING,
@@ -31,34 +42,24 @@ public class OutputWriter implements AutoCloseable {
     }
 
 
-    private double getNormalSpeed(WallCollision wc) {
-        Wall wallCollision = wc.getWall();
-        if (wallCollision == Wall.LEFT || wallCollision == Wall.RIGHT ) {
-            return wc.getP1().getVx();
-        }
-        else return wc.getP1().getVy();
-    }
-
-
-    public void writeStep(List<Particle> particles, double time, WallCollision collision) throws IOException {
-        //Buffer to 0 length
+    public void writeStep(List<Particle> particles, double time, WallCollisionDTO collision) throws IOException {
         sb.setLength(0);
-
-        if (collision == null)
-            fmt.format("%.4f%n", time);
-        else
-            fmt.format("%.4f,%d,%.17g%n", time, collision.getWall().ordinal(), Math.abs(getNormalSpeed(collision)));
-
-
+        fmt.format("%.4f%n", time);
         for (Particle p : particles) {
             fmt.format("%.17g,%.17g,%.17g,%.17g,%.5f%n", p.getX(), p.getY(), p.getVx(), p.getVy(), p.getRadius());
         }
         bw.write(sb.toString());
+        if (collision != null) {
+            sb.setLength(0);
+            fmt.format("%.4f,%d,%.17g%n", collision.time(), collision.wall().ordinal(), collision.normalSpeedAbs());
+            collisionsBw.write(sb.toString());
+        }
     }
 
     @Override
     public void close() throws IOException {
         fmt.close();
         bw.close();
+        collisionsBw.close();
     }
 }

@@ -9,10 +9,10 @@ public class CollisionSystemPriorityQueue {
     private final Enclosure mainEnclosure;
 //    private final Enclosure secondEnclosure;
     private double currentTime = 0.0;
-    private WallCollision collision = null;
+    private WallCollisionDTO collision = null;
 
-    public WallCollision getWallCollision(){
-        WallCollision retCollision = collision;
+    public WallCollisionDTO getWallCollision(){
+        WallCollisionDTO retCollision = collision;
         collision = null;
         return retCollision;
     }
