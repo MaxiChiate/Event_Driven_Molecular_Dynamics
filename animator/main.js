@@ -11,6 +11,7 @@ program
   .description("Render particle simulation files into mp4 videos")
   .argument("<inputs>", "input simulation files")
   .requiredOption("-S, --board-size <number>", "side length of board", parsePositive)
+  .requiredOption("-L, --idk-size <number>", "thingy length", parsePositive)
   // .requiredOption("--max-speed <number>", "set the simulation's max overall speed for proper particle color gradient")
   .option("--video-width <pixels>", "video width", parsePositiveInt, 500)
   .option("--video-height <pixels>", "video height", parsePositiveInt, 500)
@@ -52,7 +53,7 @@ async function generateVideo(inputPath, outputFile, opts) {
   const marginPx = 20;
   const availableSize = Math.min(opts.videoWidth, opts.videoHeight) - 2 * marginPx;
   const scale = availableSize / opts.boardSize;
-  const offsetX = (opts.videoWidth - opts.boardSize * scale) / 2;
+  const offsetX = (opts.videoWidth - opts.boardSize * scale) / 3;
   const offsetY = (opts.videoHeight - opts.boardSize * scale) / 2;
   const mapX = (x) => offsetX + x * scale;
   const mapY = (y) => offsetY + y * scale;
@@ -106,6 +107,7 @@ async function generateVideo(inputPath, outputFile, opts) {
           ctx,
           interpParticles,
           opts.boardSize,
+          opts.idkSize,
           scale,
           offsetX,
           offsetY,
@@ -126,6 +128,7 @@ async function generateVideo(inputPath, outputFile, opts) {
         ctx,
         particles,
         opts.boardSize,
+        opts.idkSize,
         scale,
         offsetX,
         offsetY,
@@ -138,12 +141,14 @@ async function generateVideo(inputPath, outputFile, opts) {
       );
       const rgba = ctx.getImageData(0, 0, opts.videoWidth, opts.videoHeight).data;
       await writeFrame(ffmpeg.stdin, Buffer.from(rgba));
+      if (prevTime < time) prevTime += dt;
     } else {
       // First timestep: just draw initial state, do NOT increment collision count
       drawFrame(
         ctx,
         particles,
         opts.boardSize,
+        opts.idkSize,
         scale,
         offsetX,
         offsetY,
@@ -156,9 +161,8 @@ async function generateVideo(inputPath, outputFile, opts) {
       );
       const rgba = ctx.getImageData(0, 0, opts.videoWidth, opts.videoHeight).data;
       await writeFrame(ffmpeg.stdin, Buffer.from(rgba));
+      prevTime = 0;
     }
-
-    prevTime = time;
     prevParticles = particles;
   }
 
@@ -166,10 +170,15 @@ async function generateVideo(inputPath, outputFile, opts) {
   await new Promise((resolve) => ffmpeg.on("close", resolve));
 }
 
+/**
+ * Draws a frame on a canvas.
+ * @param {CanvasRenderingContext2D} ctx - The 2D rendering context of a canvas.
+ */
 function drawFrame(
   ctx,
   particles,
   boardSize,
+  L,
   scale,
   offsetX,
   offsetY,
@@ -187,7 +196,17 @@ function drawFrame(
   // Board bounds
   ctx.strokeStyle = "#FFFFFF";
   ctx.lineWidth = 2;
-  ctx.strokeRect(offsetX, offsetY, boardSize * scale, boardSize * scale);
+  ctx.beginPath();
+  ctx.moveTo(offsetX, offsetY);
+  ctx.lineTo(offsetX + boardSize * scale, offsetY);
+  ctx.lineTo(offsetX + boardSize * scale, offsetY + ((boardSize - L) / 2) * scale);
+  ctx.lineTo(offsetX + 2 * boardSize * scale, offsetY + ((boardSize - L) / 2) * scale);
+  ctx.lineTo(offsetX + 2 * boardSize * scale, offsetY + ((boardSize + L) / 2) * scale);
+  ctx.lineTo(offsetX + boardSize * scale, offsetY + ((boardSize + L) / 2) * scale);
+  ctx.lineTo(offsetX + boardSize * scale, offsetY + boardSize * scale);
+  ctx.lineTo(offsetX, offsetY + boardSize * scale);
+  ctx.lineTo(offsetX, offsetY);
+  ctx.stroke();
 
   // Collision counter (if provided)
   if (collisionCount !== null) {
