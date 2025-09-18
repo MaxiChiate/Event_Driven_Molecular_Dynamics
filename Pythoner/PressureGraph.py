@@ -12,9 +12,9 @@ L          = 0.09
 
 # Longitudes de paredes (m)
 # BIG enclosure: paredes con wall id 0..3
-L_BIG_WALLS   = [0.09, 0.09, 0.09, 0.09]     # TOP, BOTTOM, LEFT, RIGHT del recinto grande
+L_BIG_WALLS   = [0.09, 0.09, (0.09-L)/2, (0.09-L)/2]     # TOP, BOTTOM, LEFT, RIGHT del recinto grande
 # SMALL enclosure: paredes con wall id 4..7
-L_SMALL_WALLS = [0.09, 0.09, L, L]     # ajustá a tu brazo (o lo que corresponda)
+L_SMALL_WALLS = [0.09, 0.09, L]     # ajustá a tu brazo (o lo que corresponda)
 # ====================
 def parse_blocks(path):
     """
