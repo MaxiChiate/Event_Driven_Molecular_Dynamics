@@ -87,83 +87,37 @@ async function generateVideo(inputPath, outputFile, opts) {
   });
 
   const dt = 1 / opts.videoFps;
-
-  let prevTime = null;
-  let prevParticles = null;
   let collisionCount = 0;
-
+  let isFirst = true;
+  let currentTime = 0;
   for await (const [time, particles] of timestepIterator) {
-    if (prevTime !== null) {
-      // Interpolated frames between previous timestep and current
-      for (let t = prevTime + dt; t < time; t += dt) {
-        const alpha = t - prevTime;
-        const interpParticles = prevParticles.map((p) => ({
-          ...p,
-          x: p.x + p.vx * alpha,
-          y: p.y + p.vy * alpha,
-        }));
-        // Draw interpolated frames with current collision count
-        drawFrame(
-          ctx,
-          interpParticles,
-          opts.boardSize,
-          opts.idkSize,
-          scale,
-          offsetX,
-          offsetY,
-          mapX,
-          mapY,
-          mapR,
-          collisionCount,
-          opts.particleIds,
-          maxSpeed
-        );
-        const rgba = ctx.getImageData(0, 0, opts.videoWidth, opts.videoHeight).data;
-        await writeFrame(ffmpeg.stdin, Buffer.from(rgba));
-      }
-
-      // Real timestep frame — increment collision count here
+    if (time < currentTime) {
       collisionCount++;
-      drawFrame(
-        ctx,
-        particles,
-        opts.boardSize,
-        opts.idkSize,
-        scale,
-        offsetX,
-        offsetY,
-        mapX,
-        mapY,
-        mapR,
-        collisionCount,
-        opts.particleIds,
-        maxSpeed
-      );
-      const rgba = ctx.getImageData(0, 0, opts.videoWidth, opts.videoHeight).data;
-      await writeFrame(ffmpeg.stdin, Buffer.from(rgba));
-      if (prevTime < time) prevTime += dt;
-    } else {
-      // First timestep: just draw initial state, do NOT increment collision count
-      drawFrame(
-        ctx,
-        particles,
-        opts.boardSize,
-        opts.idkSize,
-        scale,
-        offsetX,
-        offsetY,
-        mapX,
-        mapY,
-        mapR,
-        0,
-        opts.particleIds,
-        maxSpeed
-      );
-      const rgba = ctx.getImageData(0, 0, opts.videoWidth, opts.videoHeight).data;
-      await writeFrame(ffmpeg.stdin, Buffer.from(rgba));
-      prevTime = 0;
+      continue;
     }
-    prevParticles = particles;
+    // Real timestep frame — increment collision count here
+    drawFrame(
+      ctx,
+      particles,
+      opts.boardSize,
+      opts.idkSize,
+      scale,
+      offsetX,
+      offsetY,
+      mapX,
+      mapY,
+      mapR,
+      collisionCount,
+      opts.particleIds,
+      maxSpeed
+    );
+    if (!isFirst) {
+      collisionCount++;
+      isFirst = false;
+    }
+    const rgba = ctx.getImageData(0, 0, opts.videoWidth, opts.videoHeight).data;
+    await writeFrame(ffmpeg.stdin, Buffer.from(rgba));
+    currentTime += dt;
   }
 
   ffmpeg.stdin.end();
