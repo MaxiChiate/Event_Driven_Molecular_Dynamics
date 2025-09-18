@@ -5,7 +5,7 @@ public record WallCollisionDTO(
         double time
 ) {
     public boolean isVertical() {
-        return wall == Wall.LEFT || wall == Wall.RIGHT;
+        return wall == Wall.LEFT_1 || wall == Wall.RIGHT_1 || wall == Wall.RIGHT_2;
     }
     public double normalSpeed() {
         return isVertical() ? vx : vy;
