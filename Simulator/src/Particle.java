@@ -51,6 +51,11 @@ public class Particle {
         this.y += this.vy * dt;
     }
 
+    public void moveBackwards(double dt) {
+        this.x -= this.vx * dt;
+        this.y -= this.vy * dt;
+    }
+
     public void bounceOff(Particle other) {
         double dx = other.x - this.x;
         double dy = other.y - this.y;
@@ -153,5 +158,14 @@ public class Particle {
     @Override
     public String toString() {
         return "Particle: " + ID + ", x,y = (" + x + ", " + y + "), v = (" + vx + ", " + vy + "), radius = " + radius + ", mass = " + mass;
+    }
+
+    public double time_x(double x) {
+        double t = (x - this.x)/this.vx;
+        return t < 0 ? NO_HIT_TIME : t;
+    }
+    public double time_y(double y) {
+        double t = (y - this.y)/this.vy;
+        return t < 0 ? NO_HIT_TIME : t;
     }
 }

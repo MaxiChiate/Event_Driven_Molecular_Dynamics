@@ -22,12 +22,14 @@ public class Simulator {
     }
 
     public void executeSimulation(Path outputPath) throws IOException {
+        Double prev_t = null;
         try (OutputWriter out = OutputWriter.open(outputPath)) {
             while (collisionSystem.getCurrentTime() < duration && t != null) {
 //                collisionSystem.printState();
 //                collisionSystem.printNextCollision();
 
                 out.writeStep(particleList, t, collisionSystem.getWallCollision());
+                prev_t = t;
                 t = collisionSystem.nextStep();
 
                 step++;
@@ -70,5 +72,4 @@ public class Simulator {
             System.out.println("\nIteration " + (i + 1) + " completed.");
         }
     }
-
 }

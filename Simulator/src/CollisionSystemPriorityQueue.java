@@ -10,6 +10,7 @@ public class CollisionSystemPriorityQueue {
 //    private final Enclosure secondEnclosure;
     private double currentTime = 0.0;
     private WallCollisionDTO collision = null;
+    private int collisionCount = 0;
 
     public WallCollisionDTO getWallCollision(){
         WallCollisionDTO retCollision = collision;
@@ -19,7 +20,7 @@ public class CollisionSystemPriorityQueue {
 
     public CollisionSystemPriorityQueue(List<Particle> particles, double L) {
         this.particles = particles;
-        mainEnclosure = new Enclosure(0.0, 0.0, 0.09);
+        mainEnclosure = new Enclosure(0.0, 0.0, L);
         // cargar colisiones iniciales
         for (Particle p : particles) {
             predictExclusiveStrong(p);
@@ -58,6 +59,7 @@ public class CollisionSystemPriorityQueue {
         predict(a);
         if (b != null) predictExclusive(b, a);
 
+        ++collisionCount;
         return currentTime;
     }
 
@@ -84,7 +86,7 @@ public class CollisionSystemPriorityQueue {
 
         // Enqueue next wall collision (minimum among four walls)
         WallCollision wc = mainEnclosure.timeToHitBoundary(p);
-        if (wc.getTime() < Particle.NO_HIT_TIME) {
+        if (wc != null && wc.getTime() < Particle.NO_HIT_TIME) {
             wc.setTime(wc.getTime() + currentTime);
             pq.add(wc);
         }
