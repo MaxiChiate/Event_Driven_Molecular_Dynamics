@@ -167,6 +167,17 @@ public class Enclosure {
         double dx = x - x_corner;
         double dy = y - y_corner;
 
+        if (dx * dx + dy * dy <= r * r) {
+            p.moveBackwards(0.001);
+            x = p.getX();
+            y = p.getY();
+            vx = p.getVx();
+            vy = p.getVy();
+            r = p.getRadius();
+            dx = x - x_corner;
+            dy = y - y_corner;
+        }
+
         double a = vx * vx + vy * vy;
         double b = 2 * (dx * vx + dy * vy);
         double c = dx * dx + dy * dy - r * r;
