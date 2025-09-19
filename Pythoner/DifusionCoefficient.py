@@ -123,7 +123,7 @@ def plot_msd_with_fit(t_rel, msd, x_fit, a, b, D, D_err, out_dir=OUT_DIR, fname=
         plt.plot(xx, yy, 'r-', lw=2, label=label)
 
     plt.xlabel(r'tiempo $(s)$')
-    plt.ylabel(r'MSD $[m^{2}]$')
+    plt.ylabel(r'MSD $(m^{2})$')
     plt.grid(True)
     plt.legend()
     out_path = os.path.join(out_dir, fname)
