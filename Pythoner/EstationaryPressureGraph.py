@@ -125,7 +125,7 @@ def main():
     os.makedirs(OUT_DIR, exist_ok=True)
 
     # Scatter y ajuste lineal opcional
-    plt.figure(figsize=(9,6))
+    plt.figure(figsize=(6,4))
     plt.plot(x, y, marker='o', linestyle='', label='Datos (<P> desde estado estacionario)')
     if len(x) >= 2:
         a, b = np.polyfit(x, y, 1)  # y = a x + b
