@@ -50,6 +50,7 @@ public class OutputWriter implements AutoCloseable {
         }
         bw.write(sb.toString());
         if (collision != null) {
+            if (collision.wall() == Wall.CORNER) return;
             sb.setLength(0);
             fmt.format("%.4f,%d,%.17g%n", collision.time(), collision.wall().ordinal(), collision.normalSpeedAbs());
             collisionsBw.write(sb.toString());
