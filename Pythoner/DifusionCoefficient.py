@@ -4,12 +4,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # ====== CONFIG ======
-INPUT_PATH = "./outputs/N_300_L0.090/output_N300_L0.090_t500_0000.csv"
+INPUT_PATH = "./outputs/N_300_L0.090/output_N300_L0.090_t20_0001.csv"
 OUT_DIR    = "images"
 L          = 0.09               # box size (m)
 T_SS       = 0.0                # primer frame con t>=T_SS define t=0 relativo
-FIT_MIN_TAU = 0.0              # s; ventana inferior para ajuste
-FIT_MAX_TAU = 200.0              # s; ventana superior para ajuste
+FIT_MIN_TAU = 5.0              # s; ventana inferior para ajuste
+FIT_MAX_TAU = 15.0              # s; ventana superior para ajuste
 DIM        = 2                  # 2D => MSD ≈ 2*DIM*D*t
 # =====================
 
@@ -99,20 +99,31 @@ def ols_generico(x, y):
 
 # -------- gráfico --------
 def plot_msd_with_fit(t_rel, msd, x_fit, a, b, D, D_err, out_dir=OUT_DIR, fname="msd_fit.png"):
+    """
+    Grafica MSD con ajuste lineal. Muestra D en notación científica.
+    """
+    import os, math
+    import numpy as np
+    import matplotlib.pyplot as plt
+
     os.makedirs(out_dir, exist_ok=True)
     plt.figure(figsize=(7,5))
-    plt.plot(t_rel, msd, '.', ms=2, alpha=0.5, label='MSD (todos)')
+    # Datos
+    plt.plot(t_rel, msd, '-', lw=1, alpha=0.6, label='Datos')
 
     if len(x_fit):
-        # expandimos un poco los límites para visualizar mejor
         xx = np.linspace(x_fit.min(), x_fit.max(), 200)
         yy = a + b*xx
-        plt.plot(xx, yy, 'r-', lw=2, label='Ajuste lineal')
 
+        # Formatear D como mantisa × 10^{exponente}
+        mantissa, exponent = f"{D:.3e}".split('e')
+        exponent = int(exponent)  # ej. -5
+        label = fr'Regresión lineal: $D={mantissa}\times 10^{{{exponent}}}$'
 
-    plt.xlabel('t [s] desde t_ss')
-    plt.ylabel('MSD [m²]')
-    plt.title(f'D = {D:.3e} ± {D_err:.1e} m²/s')
+        plt.plot(xx, yy, 'r-', lw=2, label=label)
+
+    plt.xlabel(r'tiempo $(s)$')
+    plt.ylabel(r'MSD $[m^{2}]$')
     plt.grid(True)
     plt.legend()
     out_path = os.path.join(out_dir, fname)
