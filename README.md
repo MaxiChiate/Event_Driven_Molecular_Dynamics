@@ -1,4 +1,4 @@
-# Experimental Results Summary
+# Event Driven Molecular Dynamics
 
 ## Objective
 Simulate a 2D gas using an **event-driven molecular dynamics** approach and
