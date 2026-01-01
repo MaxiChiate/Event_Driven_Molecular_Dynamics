@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # ====== CONFIG ======
-INPUT_PATH = "./Simulator/outputs/N_300_L0.090/output_N300_L0.090_t100000_0000_collisions.csv"  # tu csv
+INPUT_PATH = "../Simulator/src/outputs/N_300_L0.090/output_N300_L0.090_t100_0000_collisions.csv"  # tu csv
 DELTA_T    = 2                 # tamaño del bin Δt
 MASS       = 1.0                 # masa de partícula
 OUT_DIR    = "images"
@@ -12,7 +12,7 @@ L          = 0.09
 
 # Longitudes de paredes (m)
 # BIG enclosure: paredes con wall id 0..3
-L_BIG_WALLS   = [0.09, 0.09, (0.09-L)/2, (0.09-L)/2]     # TOP, BOTTOM, LEFT, RIGHT del recinto grande
+L_BIG_WALLS   = [0.09, 0.09, 0.09, 0.09-L]     # TOP, BOTTOM, LEFT, RIGHT del recinto grande
 # SMALL enclosure: paredes con wall id 4..7
 L_SMALL_WALLS = [0.09, 0.09, L]     # ajustá a tu brazo (o lo que corresponda)
 # ====================
@@ -92,7 +92,7 @@ def pressures_per_bin_split(recs, delta_t, L_big, L_small, mass=1.0):
 
             # SMALL
             P_small = np.zeros(4, float)
-            for j in range(4):
+            for j in range(3):
                 Ls = max(L_small[j], 1e-30)
                 P_small[j] = imp_small[j] / (delta_t * Ls)
 
@@ -115,8 +115,8 @@ def pressures_per_bin_split(recs, delta_t, L_big, L_small, mass=1.0):
 def plot_totals(times, P_big, P_small, tag=""):
     os.makedirs(OUT_DIR, exist_ok=True)
     plt.figure(figsize=(10,6))
-    plt.plot(times, P_big,   label="BIG enclosure $P_t$")
-    plt.plot(times, P_small, label="SMALL enclosure $P_t$")
+    plt.plot(times, P_big,   label="Recinto izquierdo $P_t$")
+    plt.plot(times, P_small, label="Recinto derecho $P_t$")
     plt.xlabel("Tiempo (s)")
     plt.ylabel("Presión ($N/m$)")
     plt.grid(); plt.legend(loc="upper right")
@@ -127,8 +127,8 @@ def plot_totals(times, P_big, P_small, tag=""):
 def plot_walls(times, Pwalls, which="big", tag=""):
     os.makedirs(OUT_DIR, exist_ok=True)
     plt.figure(figsize=(10,6))
-    labels = [r"$P_0$", r"$P_1$", r"$P_2$", r"$P_3$"]
-    for j in range(4):
+    labels = [r"$P_0$", r"$P_1$", r"$P_2$"]
+    for j in range(3):
         plt.plot(times, Pwalls[:,j], label=labels[j])
     plt.xlabel("Tiempo (s)")
     plt.ylabel(f"Presión por pared {which.upper()} ($N/m$)")

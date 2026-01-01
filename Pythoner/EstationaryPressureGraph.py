@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
 import os
-import csv
-import math
-from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -10,14 +7,14 @@ import matplotlib.pyplot as plt
 # Cada corrida: path al CSV de eventos y el L de esa geometría (m)
 RUNS = [
     # ejemplo (editá con tus paths reales):
-    {"path": "./outputs/N_300_L0.090/output_N300_L0.090_t100000_0000.csv", "L": 0.09},
+    {"path": "../Simulator/src/outputs/N_300_L0.090/output_N300_L0.090_t100_0000_collisions.csv", "L": 0.09},
     # {"path": ".../output_L0.050.csv", "L": 0.05},
     # {"path": ".../output_L0.070.csv", "L": 0.07},
     # {"path": ".../output_L0.090.csv", "L": 0.09},
 ]
 
 # Bin de tiempo para acumular impulsos
-DELTA_T   = 3.0     # s  (igual que tu otro script, ajustable)
+DELTA_T   = 2.0     # s  (igual que tu otro script, ajustable)
 MASS      = 1.0     # kg
 RADIUS    = 0.0015  # m  (radio de las partículas)
 T_STEADY  = 80.0    # s  (umbral de estado estacionario, editable)
@@ -25,7 +22,7 @@ OUT_DIR   = "images"
 
 # Paredes activas en tu CSV actual (0..3). Longitudes (m) de cada pared del recinto grande 0.09x0.09
 # Mapeo sugerido: 0=TOP, 1=BOTTOM, 2=LEFT, 3=WRITE (todas 0.09 m)
-L_WALLS = [0.09, 0.09, 0.09, 0.09]
+L_WALLS = [0.09, 0.09, 0.09, 0.09-L, 0.09, 0.09, L]
 # ======================================================
 
 def parse_blocks(path: str):
@@ -74,7 +71,7 @@ def pressures_per_bin(recs, delta_t, L_walls, mass=1.0):
             tbin = cur_start + 0.5*delta_t
             # presión total = suma_j (imp_j / (Δt * L_j))
             P_bin = 0.0
-            for j in range(4):
+            for j in range(len(L_walls)):
                 L = max(L_walls[j], 1e-30)
                 P_bin += imp[j] / (delta_t * L)
             times.append(tbin)
@@ -128,7 +125,7 @@ def main():
     os.makedirs(OUT_DIR, exist_ok=True)
 
     # Scatter y ajuste lineal opcional
-    plt.figure(figsize=(9,6))
+    plt.figure(figsize=(6,4))
     plt.plot(x, y, marker='o', linestyle='', label='Datos (<P> desde estado estacionario)')
     if len(x) >= 2:
         a, b = np.polyfit(x, y, 1)  # y = a x + b
